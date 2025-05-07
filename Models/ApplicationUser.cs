@@ -4,7 +4,7 @@ namespace LTMS.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public required string FullName { get; set; }  // Custom field
-        
+        public string FullName { get; set; }  // Changed from required
+   
     }
 }

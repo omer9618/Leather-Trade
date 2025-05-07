@@ -3,18 +3,98 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/css/account.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - Leathrix</title>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #4a6b57;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            width: 100%;
+            margin: auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .logo-text {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+            .btn-primary:hover {
+                background-color: #3a5a46;
+                border-color: #3a5a46;
+            }
+
+        .create-account-link {
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+            .create-account-link:hover {
+                text-decoration: underline;
+            }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <div class="container">
+    <main class="container py-5">
         @RenderBody()
-    </div>
+    </main>
 
-    <script src="/lib/jquery/dist/jquery.min.js"></script>
-    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/site.js" asp-append-version="true"></script>
+    <!-- Only include these essential scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Minimal link handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.create-account-link').forEach(link => {
+                link.onclick = function (e) {
+                    window.location.href = '/Account/Register';
+                    return false;
+                };
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

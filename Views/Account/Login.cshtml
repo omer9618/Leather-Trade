@@ -1,46 +1,219 @@
-﻿@using LTMS.ViewModels;
+﻿@using LTMS.ViewModels
 @model LoginViewModel
+
 @{
-    ViewData["Title"] = "Login";
-    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+    ViewData["Title"] = "Login to Leathrix";
+    Layout = "_AccountLayout";
 }
 
-<div class="login-container">
-    <div class="login-box">
-        <h2>Login to your account</h2>
+<div class="auth-container">
+    <div class="auth-header">
+        <h1 class="logo-text">Leathrix</h1>
+        <h2 class="auth-subtitle">Login to your account</h2>
+    </div>
 
-        <!-- Error Message Display -->
-        @if (ViewData.ModelState[""]?.Errors.Count > 0)
-        {
-            <div class="alert alert-danger">
-                @Html.ValidationSummary(true)
+    <form asp-action="Login" method="post" class="auth-form">
+        @Html.AntiForgeryToken()
+
+        <!-- Email Field -->
+        <div class="form-group">
+            <label asp-for="Email" class="form-label">Email</label>
+            <div class="input-container">
+                <input asp-for="Email" class="form-control" placeholder="Enter your email">
+                <i class="fas fa-envelope input-icon"></i>
             </div>
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <!-- Password Field with Toggle -->
+        <div class="form-group">
+            <label asp-for="Password" class="form-label">Password</label>
+            <div class="input-container">
+                <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" id="passwordField">
+                <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="form-options">
+            <div class="form-check">
+                <input asp-for="RememberMe" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+            </div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary auth-btn">Sign In</button>
+    </form>
+
+    <!-- Create Account Link - MOVED OUTSIDE THE FORM -->
+    <!-- Replace the existing link with this version: -->
+    <a href="/Account/Register"
+       class="create-account-link"
+       onclick="window.location.href='/Account/Register';return false;">
+        Create one
+    </a>
+</div>
+
+@section Styles {
+    <style>
+        /* Modern Font Import */
+        @@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* Base Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
         }
 
-        <form asp-action="Login" method="post">
-            <div class="form-group">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control" placeholder="Enter email">
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+        /* Logo Styling */
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #4a6b57;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
 
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" placeholder="Password">
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+        .auth-subtitle {
+            font-weight: 400;
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
 
-            <div class="form-group form-check">
-                <input asp-for="RememberMe" class="form-check-input">
-                <label asp-for="RememberMe" class="form-check-label">Remember me</label>
-            </div>
+        /* Form Container */
+        .auth-container {
+            max-width: 420px;
+            width: 100%;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 2rem auto;
+        }
 
-            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-        </form>
+        /* Input Fields */
+        .input-container {
+            position: relative;
+        }
 
-        <div class="login-links">
-            <a asp-action="ForgotPassword">Forgot password?</a>
-            <a asp-action="Register">Create account</a>
-        </div>
-    </div>
-</div>
+        .form-control {
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #4a6b57;
+                box-shadow: 0 0 0 3px rgba(74,107,87,0.1);
+            }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+            font-size: 1rem;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+            .password-toggle:hover {
+                color: #4a6b57;
+            }
+
+        /* Button Styling */
+        .auth-btn {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            background-color: #4a6b57;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .auth-btn:hover {
+                background-color: #3a5a46;
+                transform: translateY(-2px);
+            }
+
+        /* Form Options */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .forgot-password {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .forgot-password:hover {
+                color: #4a6b57;
+                text-decoration: underline;
+            }
+
+        /* Create Account Link */
+        .create-account-link {
+            color: #4a6b57;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+            .create-account-link:hover {
+                text-decoration: underline;
+            }
+
+        /* Form Labels */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('passwordField');
+            const eyeIcon = document.querySelector('.password-toggle');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

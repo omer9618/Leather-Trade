@@ -1,8 +1,9 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿[Authorize]
+public IActionResult Index()
+{
+    if (User.IsInRole("Seller"))
+    {
+        return RedirectToAction("Dashboard", "Seller");
+    }
+    return RedirectToAction("Privacy"); // or any other default page
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>

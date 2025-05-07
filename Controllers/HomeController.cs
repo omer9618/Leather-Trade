@@ -1,4 +1,5 @@
 using LTMS.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,8 +14,14 @@ namespace LTMS.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
+            // Redirect sellers to dashboard
+            if (User.IsInRole("Seller"))
+            {
+                return RedirectToAction("Dashboard", "Seller");
+            }
             return View();
         }
 

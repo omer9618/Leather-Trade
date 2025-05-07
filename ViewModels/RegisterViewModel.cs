@@ -5,20 +5,26 @@ namespace LTMS.ViewModels
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(10, MinimumLength = 8, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least {2} characters.")]
         [DataType(DataType.Password)]
-        [Compare("ConfirmPassword", ErrorMessage = "Password does not match.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$",
+            ErrorMessage = "Password must contain uppercase, lowercase and number.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Confirm Password is required.")]
+        [Required(ErrorMessage = "Please confirm your password.")]
         [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [Required(ErrorMessage = "Please select an account type.")]
+        public string Role { get; set; }
     }
 }

@@ -11,7 +11,5 @@ namespace LTMS.Data // Should match your folder structure
         {
         }
 
-        // Add DbSets for your custom entities here if needed
-        // public DbSet<YourEntity> YourEntities { get; set; }
     }
 }

@@ -1,3 +1,6 @@
 ﻿@{
-    Layout = "_Layout";
+    if (!User.Identity.IsAuthenticated && Context.Request.Path != "/Account/Login")
+    {
+        Context.Response.Redirect("/Account/Login");
+    }
 }

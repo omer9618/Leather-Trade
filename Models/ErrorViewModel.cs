@@ -1,4 +1,4 @@
-namespace UsersApp.Models
+namespace LTMS.Models
 {
     public class ErrorViewModel
     {

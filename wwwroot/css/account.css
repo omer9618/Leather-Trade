@@ -1,21 +1,136 @@
-﻿.account-container {
-    background-image: url('../images/Leather.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: repeat-y;
+﻿/* Reset default margins and padding */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Main container - covers full viewport */
+.account-container {
+    background-color: #f8f9fa; /* Light gray background */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 2rem 0;
+    width: 100%;
 }
 
-.account-box {
-    background-color: white;
-    padding: 30px;
+/* Login box styling */
+.login-box {
+    background-color: #ffffff;
+    padding: 2.5rem;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    max-width: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     width: 100%;
-    opacity: .9;
+    max-width: 420px;
+    margin: 20px;
+}
+
+    /* Login header */
+    .login-box h2 {
+        text-align: center;
+        margin-bottom: 1.8rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+/* Form elements */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out;
+}
+
+    .form-control:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+/* Remember me checkbox */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-check-input {
+    margin-right: 0.5rem;
+}
+
+.form-check-label {
+    color: #495057;
+}
+
+/* Submit button */
+.btn-primary {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+    }
+
+/* Links below form */
+.login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+    .login-links a {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+/* Validation messages */
+.text-danger {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Alert messages */
+.alert {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
 }
