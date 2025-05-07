@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTMS", "LTMS.csproj", "{B62BF532-337C-40FD-92BD-91F601DB01E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B62BF532-337C-40FD-92BD-91F601DB01E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B62BF532-337C-40FD-92BD-91F601DB01E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B62BF532-337C-40FD-92BD-91F601DB01E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B62BF532-337C-40FD-92BD-91F601DB01E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B1197E8B-C16D-4C61-8D83-FB1FFD3D104A}
+	EndGlobalSection
+EndGlobal
