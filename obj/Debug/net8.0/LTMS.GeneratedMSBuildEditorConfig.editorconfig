@@ -9,67 +9,71 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = LTMS
 build_property.RootNamespace = LTMS
-build_property.ProjectDir = C:\Users\DC\Documents\Desktop\LTMS\
+build_property.ProjectDir = C:\Users\DC\Documents\Desktop\Leather Trade\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\DC\Documents\Desktop\LTMS
+build_property.MSBuildProjectDirectory = C:\Users\DC\Documents\Desktop\Leather Trade
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Account/Login.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Account/Auth.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBdXRoLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Account/Register.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Home/Index.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Home/Privacy.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Seller/Dashboard.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Seller/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VsbGVyXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Seller/Inventory.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Seller/Inventory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VsbGVyXEludmVudG9yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/Error.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/_AccountLayout.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/_AccountLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BY2NvdW50TGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/_LoginPartial.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/_SellerLayout.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/_SellerLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TZWxsZXJMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/_ViewImports.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/_ViewStart.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/DC/Documents/Desktop/LTMS/Views/Shared/_Layout.cshtml]
+[C:/Users/DC/Documents/Desktop/Leather Trade/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-ig6rgqot63

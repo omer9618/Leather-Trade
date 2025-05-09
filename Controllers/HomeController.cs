@@ -15,6 +15,7 @@ namespace LTMS.Controllers
         }
 
         [Authorize]
+
         public IActionResult Index()
         {
             // Redirect sellers to dashboard

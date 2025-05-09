@@ -4285,14 +4285,14 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DC\\source\\repos\\LTMS\\LTMS.csproj",
+      "projectUniqueName": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj",
       "projectName": "LTMS",
-      "projectPath": "C:\\Users\\DC\\source\\repos\\LTMS\\LTMS.csproj",
+      "projectPath": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj",
       "packagesPath": "C:\\Users\\DC\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DC\\source\\repos\\LTMS\\obj\\",
+      "outputPath": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\DC\\source\\repos\\LTMS\\NuGet.Config",
+        "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\NuGet.Config",
         "C:\\Users\\DC\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4300,6 +4300,7 @@
         "net8.0"
       ],
       "sources": {
+        "https://api.nuget.org/v3/index.json": {},
         "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json": {}
       },
       "frameworks": {

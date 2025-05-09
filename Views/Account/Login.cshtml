@@ -17,9 +17,9 @@
 
         <!-- Email Field -->
         <div class="form-group">
-            <label asp-for="Email" class="form-label">Email</label>
+            <label asp-for="Email" class="form-label" for="emailField">Email</label>
             <div class="input-container">
-                <input asp-for="Email" class="form-control" placeholder="Enter your email">
+                <input asp-for="Email" class="form-control" id="emailField" placeholder="Enter your email" autocomplete="username">
                 <i class="fas fa-envelope input-icon"></i>
             </div>
             <span asp-validation-for="Email" class="text-danger"></span>
@@ -27,9 +27,9 @@
 
         <!-- Password Field with Toggle -->
         <div class="form-group">
-            <label asp-for="Password" class="form-label">Password</label>
+            <label asp-for="Password" class="form-label" for="passwordField">Password</label>
             <div class="input-container">
-                <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" id="passwordField">
+                <input asp-for="Password" type="password" class="form-control" id="passwordField" placeholder="Enter your password" autocomplete="current-password">
                 <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
             </div>
             <span asp-validation-for="Password" class="text-danger"></span>
@@ -48,13 +48,12 @@
         <button type="submit" class="btn btn-primary auth-btn">Sign In</button>
     </form>
 
-    <!-- Create Account Link - MOVED OUTSIDE THE FORM -->
-    <!-- Replace the existing link with this version: -->
-    <a href="/Account/Register"
-       class="create-account-link"
-       onclick="window.location.href='/Account/Register';return false;">
-        Create one
-    </a>
+    <!-- Create Account Link -->
+    <div class="text-center mt-3">
+        <a href="/Account/Register" class="create-account-link">
+            Create one
+        </a>
+    </div>
 </div>
 
 @section Styles {
