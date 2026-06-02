@@ -1,0 +1,359 @@
+@model IEnumerable<LTMS.Models.Demand>
+
+@{
+    ViewData["Title"] = "Demands";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <style>
+        :root {
+            --primary-color: #4a6b57;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h1 {
+            color: var(--primary-color);
+            font-size: 2.0rem;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 1rem 0;
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #555;
+            position: relative;
+        }
+
+        .sidebar-menu li i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active {
+            background: var(--light-gray);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .sidebar-menu li:hover {
+            background: var(--light-gray);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .logout-btn {
+            color: #555;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn i {
+            margin-right: 0.8rem;
+        }
+
+        .logout-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            height: 100vh;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a5a47;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .demand-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .demand-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .demand-card p {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .demand-card .meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <partial name="_UnifiedSidebar" />
+    <div class="main-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">All Demands</h5>
+                <div class="view-toggle">
+                    <button class="btn btn-outline" onclick="toggleView('list')">
+                        <i class="fas fa-list"></i> List View
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleView('card')">
+                        <i class="fas fa-th-large"></i> Card View
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- List View -->
+                <div id="list-view">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Created</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var demand in Model)
+                                {
+                                    <tr>
+                                        <td>@demand.Title</td>
+                                        <td>@(demand.Description?.Length > 100 ? demand.Description.Substring(0, 100) + "..." : demand.Description)</td>
+                                        <td>@demand.CreatedDate.ToString("d")</td>
+                                        <td>@demand.Deadline.ToString("d")</td>
+                                        <td>
+                                            <span class="badge badge-@(demand.Status == "Open" ? "success" : "danger")">
+                                                @demand.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="@Url.Action("DemandDetails", "Seller", new { id = demand.Id })" class="btn btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Card View -->
+                <div id="card-view" style="display: none;">
+                    <div class="row">
+                        @foreach (var demand in Model)
+                        {
+                            <div class="demand-card">
+                                <h3>@demand.Title</h3>
+                                <p>@(demand.Description?.Length > 200 ? demand.Description.Substring(0, 200) + "..." : demand.Description)</p>
+                                <div class="meta">
+                                    <span><i class="far fa-calendar"></i> Created: @demand.CreatedDate.ToString("d")</span>
+                                    <span><i class="far fa-clock"></i> Deadline: @demand.Deadline.ToString("d")</span>
+                                    <span class="badge badge-@(demand.Status == "Open" ? "success" : "danger")">
+                                        @demand.Status
+                                    </span>
+                                </div>
+                                <div style="margin-top: 1rem;">
+                                    <a href="@Url.Action("DemandDetails", "Seller", new { id = demand.Id })" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleView(view) {
+            const listView = document.getElementById('list-view');
+            const cardView = document.getElementById('card-view');
+            
+            if (view === 'list') {
+                listView.style.display = 'block';
+                cardView.style.display = 'none';
+            } else {
+                listView.style.display = 'none';
+                cardView.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html> 

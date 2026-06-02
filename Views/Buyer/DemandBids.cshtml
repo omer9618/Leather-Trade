@@ -1,0 +1,505 @@
+@model LTMS.Models.Demand
+@{
+    ViewData["Title"] = "Demand Bids";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<partial name="_UnifiedSidebar" />
+<div class="main-content">
+    <style>
+        :root {
+            --primary-color: #4a6b57;
+            --primary-green: #4a6b57;
+            --primary-green-light: #eaf6f0;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+        }
+        /* Ensure cards are left-aligned and fill the width */
+        .card {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100%;
+            max-width: 100%;
+        }
+        /* Remove extra padding from the parent if any */
+        .demand-bids-root {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        /* REMOVE or COMMENT OUT all #chatMessages and #chatModal CSS below to prevent conflicts with shared _ChatPanel styles */
+        /*
+        #chatMessages {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        #chatModal .chat-bubble {
+            display: block;
+            padding: 10px 18px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            max-width: 80%;
+            word-break: break-word;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        }
+        #chatModal .chat-bubble.me {
+            background: var(--primary-green) !important;
+            color: #fff !important;
+            align-self: flex-end;
+        }
+        #chatModal .chat-bubble.them {
+            background: var(--primary-green-light) !important;
+            color: var(--primary-green) !important;
+            align-self: flex-start;
+        }
+        #chatModal .btn-primary {
+            background: var(--primary-green) !important;
+            color: #fff !important;
+            border-radius: 16px !important;
+            border: none;
+            font-weight: 600;
+            padding: 0.7rem 1.3rem;
+        }
+        #chatModal .modal-content {
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+            background: #fff;
+            border: none;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            width: 350px;
+            margin: auto;
+        }
+        #chatModal .modal-header {
+            background: transparent;
+            border-bottom: none;
+            border-radius: 24px 24px 0 0;
+            padding: 2rem 2rem 0.5rem 2rem;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        #chatModal .modal-title {
+            color: var(--primary-green);
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+        }
+        #chatModal .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            cursor: pointer;
+            margin-left: 1rem;
+            margin-top: -0.5rem;
+        }
+        #chatMessages {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 2rem 0 2rem;
+            min-height: 120px;
+            max-height: 220px;
+            overflow-y: auto;
+            background: transparent;
+            justify-content: flex-end;
+        }
+        #chatModal .modal-footer {
+            background: transparent;
+            border-top: none;
+            border-radius: 0 0 24px 24px;
+            padding: 0 2rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        #chatModal .input-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        #chatModal .form-control {
+            border-radius: 18px;
+            border: none;
+            background: #f8f9fa;
+            font-size: 1rem;
+            padding: 0.8rem 1.2rem;
+            flex: 1;
+            outline: none;
+            box-shadow: none;
+        }
+        #chatModal .btn-primary {
+            background: var(--primary-green) !important;
+            color: #fff !important;
+            border-radius: 50% !important;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: none;
+            padding: 0;
+        }
+        #chatModal .btn-primary:hover {
+            background: #3a5a47 !important;
+        }
+        */
+    </style>
+
+    <div class="demand-bids-root">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: var(--primary-color); font-weight: 600;">Bids for @Model.Title</h2>
+            <a asp-action="Dashboard" asp-controller="Buyer" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Demand Details Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Demand Details</h5>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-wrap: wrap; gap: 2rem; width: 100%;">
+                    <div style="flex: 1 1 300px; min-width: 220px;">
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-@(Model.Status == "Open" ? "success" : 
+                                               Model.Status == "Accepted" ? "primary" : 
+                                               Model.Status == "Closed" ? "secondary" : "warning")">
+                                @Model.Status
+                            </span>
+                        </p>
+                        <p><strong>Created:</strong> @Model.CreatedDate.ToString("MMM dd, yyyy")</p>
+                        <p><strong>Deadline:</strong> @Model.Deadline.ToString("MMM dd, yyyy")</p>
+                        <p><strong>Total Bids:</strong> <span class="badge bg-info">@Model.Bids.Count</span></p>
+                    </div>
+                    <div style="flex: 1 1 300px; min-width: 220px;">
+                        <p><strong>Description:</strong></p>
+                        <p>@Model.Description</p>
+                        @if (!string.IsNullOrEmpty(Model.Requirements))
+                        {
+                            <p><strong>Requirements:</strong></p>
+                            <p>@Model.Requirements</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bids Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Received Bids</h5>
+                <button class="btn btn-outline-primary btn-sm float-end" onclick="showReviewsModal()">
+                    <i class="fas fa-star"></i> View Reviews
+                </button>
+            </div>
+            <div class="card-body">
+                @if (!Model.Bids.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No bids have been received for this demand yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Seller</th>
+                                    <th>Proposal</th>
+                                    <th>Price</th>
+                                    <th>Delivery Time</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var bid in Model.Bids)
+                                {
+                                    <tr>
+                                        <td>
+                                            @bid.Seller?.UserName
+                                            @if (bid.SellerId != null && ViewBag.SellerRatings != null)
+                                            {
+                                                var ratings = (System.ValueTuple<double, int>)ViewBag.SellerRatings[bid.SellerId];
+                                                if (ratings.Item2 > 0)
+                                                {
+                                                    <div>
+                                                        <span style="color: #ffc107;">
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                <i class="fas fa-star @(i <= Math.Round(ratings.Item1) ? "" : "text-muted")"></i>
+                                                            }
+                                                        </span>
+                                                        <span style="font-size: 0.95em;">@ratings.Item1.ToString("0.0")/5.0 (@ratings.Item2 review@(ratings.Item2 == 1 ? "" : "s"))</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div style="font-size: 0.95em; color: #888;">No reviews yet</div>
+                                                }
+                                            }
+                                            <button class="btn btn-sm btn-outline-primary mt-1" onclick="openChatModal(@bid.Id, '@bid.SellerId', '@bid.Seller?.UserName')">
+                                                <i class="fas fa-comments"></i> Chat
+                                            </button>
+                                            @if (!string.IsNullOrEmpty(bid.ImagePath))
+                                            {
+                                                <button class="btn btn-outline-primary btn-sm mt-1" onclick="showBidImageModal('@bid.ImagePath')">
+                                                    <i class="fas fa-image"></i> View Image
+                                                </button>
+                                            }
+                                            <button class="btn btn-outline-secondary btn-sm mt-1" onclick="showSellerReviewsModal('@bid.SellerId', '@bid.Seller?.UserName')">
+                                                <i class="fas fa-star"></i> Reviews
+                                            </button>
+                                        </td>
+                                        <td>@bid.Description</td>
+                                        <td>$@bid.Amount.ToString("N2")</td>
+                                        <td>@bid.DeliveryTime days</td>
+                                        <td>@bid.SubmittedDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <span class="badge bg-@(bid.Status == "Accepted" ? "success" : 
+                                                               bid.Status == "Rejected" ? "danger" : 
+                                                               bid.Status == "paid" ? "info" : "warning")">
+                                                @bid.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group flex-nowrap" style="overflow-x:auto; gap:0.25rem;">
+                                                @if (Model.Status == "Open" && bid.Status == "Pending")
+                                                {
+                                                    <form asp-action="AcceptBid" asp-controller="Buyer" method="post" class="d-inline">
+                                                        <input type="hidden" name="bidId" value="@bid.Id" />
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Accept">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form asp-action="RejectBid" asp-controller="Buyer" method="post" class="d-inline">
+                                                        <input type="hidden" name="bidId" value="@bid.Id" />
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Reject">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (bid.Status == "Accepted")
+                                                {
+                                                    <a asp-action="PaymentForm" asp-controller="Payment" asp-route-bidId="@bid.Id" 
+                                                       class="btn btn-primary btn-sm" title="Pay Now">
+                                                        <i class="fas fa-credit-card"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let chatConnection = null;
+                let currentBidId = null;
+                let currentSellerId = null;
+                let currentSellerName = null;
+                let currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+
+                function openChatModal(bidId, sellerId, sellerName) {
+                    currentBidId = bidId;
+                    currentSellerId = sellerId;
+                    currentSellerName = sellerName;
+                    document.getElementById('chatUserName').textContent = sellerName;
+                    document.getElementById('chatModal').style.display = 'flex';
+                    document.getElementById('chatMessages').innerHTML = '<div class="text-center text-muted">Loading...</div>';
+                    document.getElementById('chatInput').value = '';
+                    loadChatHistory();
+                    startSignalR(bidId);
+                }
+                function closeChatModal() {
+                    document.getElementById('chatModal').style.display = 'none';
+                    if (chatConnection) chatConnection.stop();
+                }
+                function loadChatHistory() {
+                    fetch(`/api/Chat/GetBidChat?bidId=${currentBidId}`)
+                        .then(res => res.json())
+                        .then(messages => {
+                            const chatBox = document.getElementById('chatMessages');
+                            chatBox.innerHTML = '';
+                            if (messages.length === 0) {
+                                chatBox.innerHTML = '<div class="text-center text-muted">No messages yet.</div>';
+                            } else {
+                                messages.forEach(msg => {
+                                    appendChatBubble(msg.senderId, msg.message);
+                                });
+                                chatBox.scrollTop = chatBox.scrollHeight;
+                            }
+                        });
+                }
+                function startSignalR(bidId) {
+                    if (chatConnection) chatConnection.stop();
+                    chatConnection = new signalR.HubConnectionBuilder().withUrl('/chathub').build();
+                    chatConnection.start().then(() => {
+                        chatConnection.invoke('JoinGroup', `bid-${bidId}`);
+                    });
+                    chatConnection.on('ReceiveMessage', (senderId, receiverId, message) => {
+                        if ((senderId === currentUserId && receiverId === currentSellerId) || (senderId === currentSellerId && receiverId === currentUserId)) {
+                            loadChatHistory();
+                        }
+                    });
+                }
+                function sendChatMessage() {
+                    const input = document.getElementById('chatInput');
+                    const message = input.value.trim();
+                    if (!message) return;
+                    appendChatBubble(currentUserId, message);
+                    input.value = '';
+                    chatConnection.invoke('SendMessage', `bid-${currentBidId}`, currentUserId, currentSellerId, message);
+                    fetch('/api/Chat/SendBidMessage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bidId: currentBidId, senderId: currentUserId, receiverId: currentSellerId, message })
+                    }).then(() => {
+                        loadChatHistory();
+                    });
+                }
+                function appendChatBubble(senderId, message) {
+                    const chatBox = document.getElementById('chatMessages');
+                    const isMe = senderId === currentUserId;
+                    const bubbleClass = isMe ? 'chat-bubble me' : 'chat-bubble them';
+                    chatBox.innerHTML += `<div class="${bubbleClass}">${isMe ? 'You: ' : ''}${message}</div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+                window.openChatModal = openChatModal;
+                window.sendChatMessage = sendChatMessage;
+                window.closeChatModal = closeChatModal;
+            });
+
+            window.showBidImageModal = function(imagePath) {
+                var img = document.getElementById('bidImageModalImg');
+                img.src = imagePath;
+                var modal = new bootstrap.Modal(document.getElementById('bidImageModal'));
+                modal.show();
+            }
+
+            window.showReviewsModal = function() {
+                var modal = new bootstrap.Modal(document.getElementById('reviewsModal'));
+                modal.show();
+            }
+
+            window.showSellerReviewsModal = function(sellerId, sellerName) {
+                var modal = new bootstrap.Modal(document.getElementById('sellerReviewsModal'));
+                var body = document.getElementById('sellerReviewsModalBody');
+                var reviewsDict = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SellerReviews ?? new Dictionary<string, List<LTMS.Models.Review>>()));
+                var reviews = reviewsDict[sellerId] || [];
+                var html = '';
+                if (reviews.length > 0) {
+                    html += `<div class='fw-bold mb-2'>Reviews for ${sellerName}</div>`;
+                    reviews.forEach(function(review) {
+                        html += `<div class='mb-2' style='border-bottom:1px solid #e0e0e0; padding-bottom:6px;'>`;
+                        html += `<div class='d-flex align-items-center mb-1'>`;
+                        html += `<span class='me-2'><i class='fas fa-user'></i> ${review.Buyer?.FullName || 'Buyer'}</span>`;
+                        html += `<span style='color:#ffc107;'>`;
+                        for (var i = 1; i <= 5; i++) {
+                            html += `<i class='fas fa-star ${i <= review.Rating ? '' : 'text-muted'}'></i>`;
+                        }
+                        html += `</span>`;
+                        html += `<span class='ms-2 text-muted' style='font-size:0.95em;'>${review.CreatedAt ? new Date(review.CreatedAt).toLocaleDateString() : ''}</span>`;
+                        html += `</div>`;
+                        html += `<div style='margin-left:1.5em; color:#333;'>${review.Comment}</div>`;
+                        html += `</div>`;
+                    });
+                } else {
+                    html = `<div class='text-center text-muted'>No reviews found for this seller.</div>`;
+                }
+                body.innerHTML = html;
+                modal.show();
+            }
+        </script>
+    </div>
+</div>
+
+@section PageModals {
+    @await Html.PartialAsync("_ChatPanel")
+    <div class="modal fade" id="bidImageModal" tabindex="-1" aria-labelledby="bidImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bidImageModalLabel">Bid Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="bidImageModalImg" src="" alt="Bid Image" style="max-width:100%; max-height:60vh; border-radius:8px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:24px;">
+                <div class="modal-header" style="border-bottom:none;">
+                    <h5 class="modal-title" id="reviewsModalLabel"><i class="fas fa-star"></i> Seller Reviews</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height:60vh; overflow-y:auto;">
+                    @if (ViewBag.SellerReviews != null && ((IDictionary<string, List<LTMS.Models.Review>>)ViewBag.SellerReviews).Any())
+                    {
+                        foreach (var sellerEntry in (IDictionary<string, List<LTMS.Models.Review>>)ViewBag.SellerReviews)
+                        {
+                            <div class="mb-3 p-2" style="background:#f8f9fa; border-radius:12px;">
+                                <div class="fw-bold mb-1">Seller: @sellerEntry.Key</div>
+                                @foreach (var review in sellerEntry.Value)
+                                {
+                                    <div class="mb-2" style="border-bottom:1px solid #e0e0e0; padding-bottom:6px;">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <span class="me-2"><i class="fas fa-user"></i> @review.Buyer?.FullName</span>
+                                            <span style="color:#ffc107;">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= review.Rating ? "" : "text-muted")"></i>
+                                                }
+                                            </span>
+                                            <span class="ms-2 text-muted" style="font-size:0.95em;">@review.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                        <div style="margin-left:1.5em; color:#333;">@review.Comment</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted">No reviews found for sellers on this demand.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="sellerReviewsModal" tabindex="-1" aria-labelledby="sellerReviewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:24px;">
+                <div class="modal-header" style="border-bottom:none;">
+                    <h5 class="modal-title" id="sellerReviewsModalLabel"><i class="fas fa-star"></i> Seller Reviews</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="sellerReviewsModalBody" style="max-height:60vh; overflow-y:auto;">
+                    <!-- Reviews will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+} 

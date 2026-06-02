@@ -1,0 +1,149 @@
+@model IEnumerable<LTMS.Models.Review>
+
+@{
+    ViewData["Title"] = "Seller Reviews";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <style>
+        :root {
+            --primary-color: #4a6b57;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .rating {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-comment {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .review-meta {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .stars i {
+            margin-right: 2px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <partial name="_UnifiedSidebar" />
+
+    <div class="main-content">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Seller Reviews</h2>
+            </div>
+            <div class="card-body">
+                @if (!Model.Any())
+                {
+                    <p>No reviews yet.</p>
+                }
+                else
+                {
+                    foreach (var review in Model)
+                    {
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="reviewer-name">@review.Buyer.UserName</span>
+                                <span class="review-date">@review.CreatedAt.ToString("MM/dd/yyyy")</span>
+                            </div>
+                            <div class="rating">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star @(i <= review.Rating ? "stars" : "text-muted")"></i>
+                                }
+                            </div>
+                            <p class="review-comment">@review.Comment</p>
+                            <div class="review-meta">
+                                <span>Order #@review.OrderId</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

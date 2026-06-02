@@ -1,0 +1,242 @@
+@model IEnumerable<LTMS.Models.Bid>
+
+@{
+    ViewData["Title"] = "My Bids";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<partial name="_UnifiedSidebar" />
+<div class="main-content" id="mainContent">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">My Bids</h2>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Demand</th>
+                            <th>Amount</th>
+                            <th>Delivery Time</th>
+                            <th>Status</th>
+                            <th>Submitted Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bid in Model)
+                        {
+                            <tr>
+                                <td>@bid.Demand?.Title</td>
+                                <td>$@bid.Amount.ToString("N2")</td>
+                                <td>@bid.DeliveryTime days</td>
+                                <td>
+                                    <span class="badge bg-@(bid.Status == "Accepted" ? "success" : bid.Status == "Rejected" ? "danger" : "warning")">
+                                        @bid.Status
+                                    </span>
+                                </td>
+                                <td>@bid.SubmittedDate.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="openChatModal(@bid.Id, '@bid.Demand?.UserId', '@bid.Demand?.User?.UserName')">
+                                        <i class="fas fa-comments"></i> Chat
+                                    </button>
+                                    <button class="btn btn-danger" onclick="confirmDelete(@bid.Id)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                    @if (!string.IsNullOrEmpty(bid.ImagePath))
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm" onclick="showBidImageModal('@bid.ImagePath')">
+                                            <i class="fas fa-image"></i> View Image
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>You haven't submitted any bids yet.</p>
+            }
+        </div>
+    </div>
+</div>
+@section PageModals {
+    @await Html.PartialAsync("_ChatPanel")
+    <div class="modal fade" id="bidImageModal" tabindex="-1" aria-labelledby="bidImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bidImageModalLabel">Bid Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="bidImageModalImg" src="" alt="Bid Image" style="max-width:100%; max-height:60vh; border-radius:8px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let chatConnection = null;
+    let currentBidId = null;
+    let currentBuyerId = null;
+    let currentBuyerName = null;
+    let currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+
+    // Connect to SignalR hub for notifications
+    const notificationConnection = new signalR.HubConnectionBuilder().withUrl('/notificationhub').build();
+    notificationConnection.start().then(() => {
+        console.log('Connected to NotificationHub');
+    }).catch(err => {
+        console.error('Error connecting to NotificationHub:', err);
+    });
+
+    // Listen for notifications
+    notificationConnection.on('ReceiveNotification', (title, message, referenceId) => {
+        Swal.fire({
+            title: title,
+            text: message,
+            icon: 'info',
+            toast: true,
+            position: 'top-start',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
+        });
+    });
+
+    window.openChatModal = function(bidId, buyerId, buyerName) {
+        currentBidId = bidId;
+        currentBuyerId = buyerId;
+        currentBuyerName = buyerName;
+        document.getElementById('chatUserName').textContent = buyerName;
+        document.getElementById('chatModal').style.display = 'flex';
+        document.getElementById('chatMessages').innerHTML = '<div class="text-center text-muted">Loading...</div>';
+        document.getElementById('chatInput').value = '';
+        loadChatHistory();
+        startSignalR(bidId);
+    }
+
+    window.closeChatModal = function() {
+        document.getElementById('chatModal').style.display = 'none';
+        if (chatConnection) chatConnection.stop();
+    }
+
+    function loadChatHistory() {
+        fetch(`/api/Chat/GetBidChat?bidId=${currentBidId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(messages => {
+                const chatBox = document.getElementById('chatMessages');
+                chatBox.innerHTML = '';
+                if (messages.length === 0) {
+                    chatBox.innerHTML = '<div class="text-center text-muted">No messages yet.</div>';
+                } else {
+                    messages.forEach(msg => {
+                        appendChatBubble(msg.senderId, msg.message);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading chat history:', error);
+            });
+    }
+
+    function startSignalR(bidId) {
+        if (chatConnection) chatConnection.stop();
+        chatConnection = new signalR.HubConnectionBuilder().withUrl('/chathub').build();
+        chatConnection.start().then(() => {
+            chatConnection.invoke('JoinGroup', `bid-${bidId}`);
+        }).catch(err => {
+            console.error('Error starting SignalR connection:', err);
+        });
+
+        chatConnection.on('ReceiveMessage', (senderId, receiverId, message) => {
+            if ((senderId === currentUserId && receiverId === currentBuyerId) || 
+                (senderId === currentBuyerId && receiverId === currentUserId)) {
+                loadChatHistory();
+            }
+        });
+    }
+
+    window.sendChatMessage = function() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        appendChatBubble(currentUserId, message);
+        input.value = '';
+        chatConnection.invoke('SendMessage', `bid-${currentBidId}`, currentUserId, currentBuyerId, message);
+        fetch('/api/Chat/SendBidMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                bidId: currentBidId,
+                senderId: currentUserId,
+                receiverId: currentBuyerId,
+                message: message
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            if (data.success) {
+                loadChatHistory();
+            }
+        }).catch(error => {
+            console.error('Error sending message:', error);
+        });
+    }
+
+    function appendChatBubble(senderId, message) {
+        const chatBox = document.getElementById('chatMessages');
+        const isMe = senderId === currentUserId;
+        const bubbleClass = isMe ? 'chat-bubble me' : 'chat-bubble them';
+        chatBox.innerHTML += `<div class="${bubbleClass}">${isMe ? 'You: ' : ''}${message}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    try {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+        }
+
+        const chatModal = document.getElementById('chatModal');
+        if (chatModal) {
+            chatModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeChatModal();
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error adding event listeners:', e);
+    }
+
+    window.showBidImageModal = function(imagePath) {
+        var img = document.getElementById('bidImageModalImg');
+        img.src = imagePath;
+        var modal = new bootstrap.Modal(document.getElementById('bidImageModal'));
+        modal.show();
+    }
+});
+</script>
+}

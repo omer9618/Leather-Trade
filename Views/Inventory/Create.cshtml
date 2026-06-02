@@ -1,0 +1,105 @@
+@model LTMS.Models.Inventory
+
+@{
+    ViewData["Title"] = "Add Inventory Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var leatherTypes = ViewBag.LeatherTypes as List<LTMS.Models.LeatherType>;
+}
+
+<partial name="_UnifiedSidebar" />
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Add New Inventory Item</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="ProductName">Product Name</label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LeatherTypeId">Leather Type</label>
+                    <select asp-for="LeatherTypeId" class="form-control" id="leatherTypeSelect">
+                        <option value="">Select Leather Type</option>
+                        <optgroup label="Common Leather Types">
+                            @foreach (var type in leatherTypes.Where(t => t.Category == "Common"))
+                            {
+                                <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                            }
+                        </optgroup>
+                        <optgroup label="Specialty Leathers">
+                            @foreach (var type in leatherTypes.Where(t => t.Category == "Specialty"))
+                            {
+                                <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                            }
+                        </optgroup>
+                        <optgroup label="Exotic Leathers">
+                            @foreach (var type in leatherTypes.Where(t => t.Category == "Exotic"))
+                            {
+                                <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                            }
+                        </optgroup>
+                    </select>
+                    <span asp-validation-for="LeatherTypeId" class="text-danger"></span>
+                    <small id="leatherTypeDescription" class="form-text text-muted"></small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Price">Price ($)</label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Quantity">Quantity</label>
+                    <div class="input-group">
+                        <input asp-for="Quantity" class="form-control" type="number" min="0" />
+                        <select asp-for="UnitOfMeasurement" class="form-control">
+                            <option value="Square Feet">Square Feet</option>
+                            <option value="Square Meters">Square Meters</option>
+                            <option value="Pieces">Pieces</option>
+                            <option value="Yards">Yards</option>
+                            <option value="Meters">Meters</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LastUpdated">Last Updated</label>
+                    <input asp-for="LastUpdated" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="LastUpdated" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#leatherTypeSelect').change(function() {
+                var description = $(this).find(':selected').data('description');
+                $('#leatherTypeDescription').text(description || '');
+            });
+        });
+    </script>
+} 

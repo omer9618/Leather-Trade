@@ -1,0 +1,95 @@
+﻿<style>
+    @@keyframes typingPulse { 
+        0% { opacity: 0.4; } 
+        50% { opacity: 1; } 
+        100% { opacity: 0.4; } 
+    }
+    .typing-indicator-active { 
+        animation: typingPulse 1.5s infinite; 
+        font-style: italic; 
+        color: #4a6b57; 
+    }
+</style>
+
+<script>
+    function toggleAIChatModal() {
+        const modal = document.getElementById('aiChatModal');
+        modal.style.display === 'flex' ? closeAIChatModal() : openAIChatModal();
+    }
+
+    function openAIChatModal() {
+        const modal = document.getElementById('aiChatModal');
+        modal.style.display = 'flex';
+        document.getElementById('aiChatInput').focus();
+    }
+
+    function closeAIChatModal() {
+        document.getElementById('aiChatModal').style.display = 'none';
+    }
+
+    async function sendAIChatMessage() {
+        const input = document.getElementById('aiChatInput');
+        const textValue = input.value.trim();
+
+        if (textValue) {
+            addAIChatMessage(textValue, 'me');
+            input.value = '';
+            const typingIndicator = addTypingIndicator();
+
+            try {
+                // FETCH calling your local C# controller
+                const response = await fetch('/api/aichat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: textValue }) 
+                });
+
+                const data = await response.json();
+                removeTypingIndicator(typingIndicator);
+
+                if (response.ok && data.reply) {
+                    addAIChatMessage(data.reply, 'them');
+                } else {
+                    // This will now show the REAL error from Gemini if it fails
+                    addAIChatMessage("Error: " + (data.error || "Server issue"), 'them');
+                }
+            } catch (error) {
+                removeTypingIndicator(typingIndicator);
+                addAIChatMessage("Network Error: Could not reach the server.", 'them');
+            }
+        }
+    }
+
+    function addAIChatMessage(text, sender) {
+        const container = document.getElementById('aiChatMessages');
+        const div = document.createElement('div');
+        div.className = `chat-bubble ${sender}`;
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        div.innerHTML = `
+            <div class="chat-header">
+                <span class="chat-sender">${sender === 'me' ? 'You' : 'AI Assistant'}</span>
+                <span class="chat-time">${time}</span>
+            </div>
+            <div class="chat-text">${text}</div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+        const container = document.getElementById('aiChatMessages');
+        const indicator = document.createElement('div');
+        indicator.className = 'chat-bubble them typing-indicator-active';
+        indicator.innerHTML = '<div class="chat-text">...AI is thinking...</div>';
+        container.appendChild(indicator);
+        container.scrollTop = container.scrollHeight;
+        return indicator;
+    }
+
+    function removeTypingIndicator(el) { if (el) el.remove(); }
+
+    document.getElementById('aiChatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendAIChatMessage();
+    });
+</script>

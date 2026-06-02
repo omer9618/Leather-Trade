@@ -1,0 +1,72 @@
+@model LTMS.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="sidebar-container">
+    @await Html.PartialAsync("~/Views/Shared/_UnifiedSidebar.cshtml")
+</div>
+<div class="main-content">
+    <div class="card mb-4">
+        <div class="card-header bg-white border-bottom d-flex align-items-center">
+            <h4 class="mb-0" style="color: #4a6b57; font-weight: 600;"><i class="fas fa-user"></i> Profile Overview</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Name</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8">@Model.Email</dd>
+                <dt class="col-sm-4">Role</dt>
+                <dd class="col-sm-8">@Model.Role</dd>
+                <dt class="col-sm-4">Total Orders</dt>
+                <dd class="col-sm-8">@Model.TotalOrders</dd>
+                @if (Model.Role == "Buyer") {
+                    <dt class="col-sm-4">Total Spent</dt>
+                    <dd class="col-sm-8" style="color: #28a745; font-weight: 600;">$@Model.TotalSpent.ToString("N2")</dd>
+                } else if (Model.Role == "Seller") {
+                    <dt class="col-sm-4">Total Earned</dt>
+                    <dd class="col-sm-8" style="color: #007bff; font-weight: 600;">$@Model.TotalEarned.ToString("N2")</dd>
+                }
+            </dl>
+        </div>
+    </div>
+</div>
+<style>
+    .sidebar-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+    }
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: white;
+    }
+    .card-header {
+        background: white;
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+    }
+    .card-title {
+        color: #4a6b57;
+        font-weight: 600;
+        margin: 0;
+    }
+    dt {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    dd {
+        margin-bottom: 0.5rem;
+    }
+</style> 

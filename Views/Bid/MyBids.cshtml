@@ -1,0 +1,60 @@
+@model IEnumerable<LTMS.Models.Bid>
+
+@{
+    ViewData["Title"] = "My Bids";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<partial name="_UnifiedSidebar" />
+<div class="main-content" id="mainContent">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">My Bids</h2>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Demand</th>
+                            <th>Amount</th>
+                            <th>Delivery Time</th>
+                            <th>Status</th>
+                            <th>Submitted Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bid in Model)
+                        {
+                            <tr>
+                                <td>@bid.Demand?.Title</td>
+                                <td>$@bid.Amount.ToString("N2")</td>
+                                <td>@bid.DeliveryTime days</td>
+                                <td>
+                                    <span class="badge badge-@(bid.Status == "Accepted" ? "success" : bid.Status == "Rejected" ? "danger" : "warning")">
+                                        @bid.Status
+                                    </span>
+                                </td>
+                                <td>@bid.SubmittedDate.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <button class="btn btn-danger" onclick="confirmDelete(@bid.Id)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>You haven't submitted any bids yet.</p>
+            }
+        </div>
+    </div>
+</div>
+@section PageModals {
+    @await Html.PartialAsync("_ChatPanel")
+} 

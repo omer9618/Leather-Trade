@@ -8,177 +8,74 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <style>
         :root {
-            --sidebar-width: 250px;
-            --sidebar-bg: #343a40;
-            --sidebar-color: white;
-            --top-nav-height: 56px;
+            --primary-color: #4a6b57;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #dee2e6;
         }
 
         body {
-            padding-top: var(--top-nav-height);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
         }
 
-        .sidebar {
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--top-nav-height));
-            position: fixed;
-            left: 0;
-            top: var(--top-nav-height);
-            background: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            transition: all 0.3s;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .sidebar-collapsed {
-            left: calc(-1 * var(--sidebar-width));
-        }
-
+        /* Main Content Styles */
         .main-content {
-            margin-left: var(--sidebar-width);
-            transition: all 0.3s;
-            padding: 20px;
-            min-height: calc(100vh - var(--top-nav-height));
+            margin-left: 250px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
         }
 
-        .main-content-expanded {
+        .main-content.expanded {
             margin-left: 0;
         }
 
-        .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin: 5px 10px;
-        }
-
-            .nav-link:hover, .nav-link.active {
-                color: white;
-                background: rgba(255,255,255,0.1);
-                text-decoration: none;
-            }
-
-            .nav-link i {
-                width: 20px;
-                text-align: center;
-                margin-right: 10px;
-            }
-
-        .toggle-btn {
-            position: fixed;
-            left: 10px;
-            top: calc(var(--top-nav-height) + 10px);
-            z-index: 1001;
-            background: var(--sidebar-bg);
-            color: white;
+        .card {
             border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            background: white;
         }
 
-        .top-navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1030;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .card-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
         }
 
         @@media (max-width: 992px) {
-            .sidebar {
-                left: calc(-1 * var(--sidebar-width));
-            }
-
             .main-content {
                 margin-left: 0;
             }
-
-            .sidebar-collapsed {
-                left: 0;
-            }
         }
     </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <nav class="navbar navbar-expand navbar-light top-navbar">
-        <div class="container-fluid">
-            <button class="btn btn-sm d-lg-none" id="toggleSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <span class="nav-link">Welcome, @User.Identity?.Name!</span>
-                    </li>
-                    <li class="nav-item">
-                        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-                            <button type="submit" class="nav-link btn btn-link">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <!-- Include the unified sidebar -->
+    <partial name="_UnifiedSidebar" />
 
-    <div class="sidebar" id="sidebar">
-        <div class="p-3">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")"
-                       asp-controller="Seller" asp-action="Dashboard">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Inventory" ? "active" : "")"
-                       asp-controller="Seller" asp-action="Inventory">
-                        <i class="fas fa-boxes"></i> Inventory
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Orders" ? "active" : "")"
-                       asp-controller="Seller" asp-action="Orders">
-                        <i class="fas fa-receipt"></i> Orders
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
+    <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="container-fluid">
             @RenderBody()
         </div>
     </div>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#toggleSidebar').click(function () {
-                $('#sidebar').toggleClass('sidebar-collapsed');
-                $('#mainContent').toggleClass('main-content-expanded');
-            });
-
-            // Automatically collapse sidebar on small screens
-            function handleSidebar() {
-                if ($(window).width() < 992) {
-                    $('#sidebar').addClass('sidebar-collapsed');
-                    $('#mainContent').addClass('main-content-expanded');
-                } else {
-                    $('#sidebar').removeClass('sidebar-collapsed');
-                    $('#mainContent').removeClass('main-content-expanded');
-                }
-            }
-
-            // Run on load and resize
-            handleSidebar();
-            $(window).resize(handleSidebar);
-        });
-    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

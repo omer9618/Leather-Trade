@@ -1,0 +1,34 @@
+﻿@model IEnumerable<LTMS.Models.Demand>
+
+<h2>Open Demands</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Created</th>
+            <th>Deadline</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Description</td>
+                <td>@item.CreatedDate.ToString("d")</td>
+                <td>@item.Deadline.ToString("d")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @if (User.IsInRole("Seller"))
+                    {
+                        <span> | </span>
+                        <a asp-controller="Bid" asp-action="Create" asp-route-demandId="@item.Id">Bid</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

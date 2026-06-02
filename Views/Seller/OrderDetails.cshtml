@@ -1,0 +1,83 @@
+@model LTMS.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root { --primary-color: #4a6b57; --border-color: #dee2e6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; }
+        .main-content { margin: 2rem auto; max-width: 700px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-title { color: var(--primary-color); font-size: 1.2rem; font-weight: 600; margin: 0; }
+        .card-body { padding: 1.5rem; }
+        .order-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .info-group { background-color: #f5f5f5; padding: 1rem; border-radius: 4px; }
+        .info-label { font-size: 0.875rem; color: #666; margin-bottom: 0.5rem; }
+        .info-value { font-weight: 500; }
+        .badge { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.875rem; font-weight: 500; }
+        .badge-success { background-color: #28a745; color: white; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-danger { background-color: #dc3545; color: white; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; font-size: 0.875rem; cursor: pointer; transition: background-color 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: #3a5a47; }
+        .btn-outline-primary { border: 1px solid var(--primary-color); color: var(--primary-color); background-color: transparent; }
+        .btn-outline-primary:hover { background-color: var(--primary-color); color: white; }
+    </style>
+</head>
+<body>
+    <partial name="_UnifiedSidebar" />
+    <div class="main-content">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Order Details</h2>
+                <a asp-action="MyBids" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to My Bids
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="order-info">
+                    <div class="info-group">
+                        <div class="info-label">Order ID</div>
+                        <div class="info-value">#@Model.Id</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            <span class="badge badge-@(Model.Status == "Completed" ? "success" : Model.Status == "Cancelled" ? "danger" : "warning")">
+                                @Model.Status
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Buyer</div>
+                        <div class="info-value">@Model.Buyer?.UserName</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Order Date</div>
+                        <div class="info-value">@Model.OrderDate.ToString("MMM dd, yyyy")</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Amount</div>
+                        <div class="info-value">$@Model.Amount.ToString("N2")</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Demand Title</div>
+                        <div class="info-value">@Model.Bid?.Demand?.Title</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

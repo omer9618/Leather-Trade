@@ -1,145 +1,196 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LTMS.Models;
+using LTMS.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using LTMS.Models;
-using LTMS.ViewModels;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using LTMS.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTMS.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly ApplicationDbContext _context; // Added DbContext
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            ApplicationDbContext context) // Added DbContext parameter
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _context = context; // Initialize DbContext
         }
 
+        // GET: /Account/Login
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Auth(string? returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
-            if (User.Identity?.IsAuthenticated ?? false)
-            {
-                _logger.LogInformation("Authenticated user attempted to access Auth page");
-                return RedirectToAction("Index", "Home");
-            }
-
             ViewData["ReturnUrl"] = returnUrl;
-            _logger.LogInformation("Loading combined auth page");
             return View();
         }
 
-        [HttpPost("Login")]
+        // POST: /Account/Login
+        [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                _logger.LogWarning("Login attempt with invalid model");
-                return View("Auth", model);
-            }
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.Email,
+                    model.Password,
+                    model.RememberMe,
+                    lockoutOnFailure: false);
 
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email,
-                model.Password,
-                model.RememberMe,
-                lockoutOnFailure: false);
-
-            if (result.Succeeded)
-            {
-                _logger.LogInformation($"User logged in: {model.Email}");
-                var user = await _userManager.FindByEmailAsync(model.Email);
-
-                if (await _userManager.IsInRoleAsync(user, "Seller"))
+                if (result.Succeeded)
                 {
-                    return RedirectToAction("Dashboard", "Seller");
-                }
-                return RedirectToLocal(returnUrl);
-            }
+                    _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByEmailAsync(model.Email);
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            _logger.LogWarning($"Failed login attempt for: {model.Email}");
-            return View("Auth", model);
+                    if (await _userManager.IsInRoleAsync(user, "Seller"))
+                    {
+                        return RedirectToAction("Dashboard", "Seller");
+                    }
+                    else if (await _userManager.IsInRoleAsync(user, "Buyer"))
+                    {
+                        return RedirectToAction("Dashboard", "Buyer");
+                    }
+                    return RedirectToAction("Index", "Home");
+                }
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            }
+            return View(model);
         }
 
-        [HttpPost("Register")]
+        // GET: /Account/Register
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            return View(new RegisterViewModel { Role = "Buyer" }); // Set default role
+        }
+
+        // POST: /Account/Register
+        [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Registration attempt with invalid model");
-                return View("Auth", model);
+                var errors = string.Join(", ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                _logger.LogWarning("Registration failed: Model state is invalid. Errors: {Errors}", errors);
+                return View(model);
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(model.Email);
-            if (existingUser != null)
+            try
             {
-                _logger.LogWarning($"Registration attempt with existing email: {model.Email}");
-                ModelState.AddModelError("Email", "Email is already registered.");
-                return View("Auth", model);
-            }
+                _logger.LogInformation("Starting registration for {Email}", model.Email);
 
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FullName = model.Name
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                _logger.LogInformation($"New user registered: {model.Email}");
-
-                if (!await _roleManager.RoleExistsAsync(model.Role))
+                // Check if user already exists
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
                 {
-                    _logger.LogInformation($"Creating new role: {model.Role}");
-                    await _roleManager.CreateAsync(new IdentityRole(model.Role));
+                    _logger.LogWarning("Registration failed: User with email {Email} already exists", model.Email);
+                    ModelState.AddModelError("Email", "A user with this email already exists.");
+                    return View(model);
                 }
 
-                await _userManager.AddToRoleAsync(user, model.Role);
-                _logger.LogInformation($"Added user {model.Email} to role {model.Role}");
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FullName = model.Name,
+                    EmailConfirmed = true
+                };
 
+                _logger.LogInformation("Creating user with email: {Email}", model.Email);
+                var createResult = await _userManager.CreateAsync(user, model.Password);
+
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    _logger.LogError("User creation failed: {Errors}", errors);
+                    foreach (var error in createResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+
+                _logger.LogInformation("User created successfully. Adding to role: {Role}", model.Role);
+
+                // Ensure role exists
+                if (!await _roleManager.RoleExistsAsync(model.Role))
+                {
+                    _logger.LogInformation("Creating role: {Role}", model.Role);
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole(model.Role));
+                    if (!roleResult.Succeeded)
+                    {
+                        var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                        _logger.LogError("Role creation failed: {Errors}", errors);
+                        foreach (var error in roleResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        return View(model);
+                    }
+                }
+
+                var addToRoleResult = await _userManager.AddToRoleAsync(user, model.Role);
+                if (!addToRoleResult.Succeeded)
+                {
+                    var errors = string.Join(", ", addToRoleResult.Errors.Select(e => e.Description));
+                    _logger.LogError("Role assignment failed: {Errors}", errors);
+                    foreach (var error in addToRoleResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+
+                _logger.LogInformation("Successfully registered user {Email} with role {Role}", user.Email, model.Role);
+
+                // Sign in the user
                 await _signInManager.SignInAsync(user, isPersistent: false);
 
                 if (model.Role == "Seller")
                 {
                     return RedirectToAction("Dashboard", "Seller");
                 }
+                else if (model.Role == "Buyer")
+                {
+                    return RedirectToAction("Dashboard", "Buyer");
+                }
                 return RedirectToAction("Index", "Home");
             }
-
-            foreach (var error in result.Errors)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
-                _logger.LogWarning($"User creation error: {error.Description}");
+                _logger.LogError(ex, "Registration failed for {Email}. Exception: {Message}, Stack Trace: {StackTrace}", 
+                    model.Email, ex.Message, ex.StackTrace);
+                ModelState.AddModelError("", $"An error occurred during registration: {ex.Message}");
+                return View(model);
             }
-
-            return View("Auth", model);
         }
 
+        // POST: /Account/Logout
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
@@ -148,12 +199,60 @@ namespace LTMS.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        // GET: /Account/AccessDenied
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
-            _logger.LogWarning("Access denied page loaded");
             return View();
+        }
+
+        // GET: /Account/Profile
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Calculate analytics
+            var isBuyer = await _userManager.IsInRoleAsync(user, "Buyer");
+            var isSeller = await _userManager.IsInRoleAsync(user, "Seller");
+            decimal totalSpent = 0;
+            decimal totalEarned = 0;
+            int totalOrders = 0;
+
+            if (isBuyer)
+            {
+                totalOrders = _context.Orders.Count(o => o.BuyerId == user.Id);
+                totalSpent = _context.Orders.Where(o => o.BuyerId == user.Id).Sum(o => (decimal?)o.Amount) ?? 0;
+            }
+            if (isSeller)
+            {
+                totalOrders = _context.Orders.Count(o => o.SellerId == user.Id);
+                totalEarned = _context.Orders.Where(o => o.SellerId == user.Id).Sum(o => (decimal?)o.Amount) ?? 0;
+            }
+
+            var model = new ProfileViewModel
+            {
+                Name = user.FullName,
+                Email = user.Email,
+                Role = isBuyer ? "Buyer" : isSeller ? "Seller" : "",
+                TotalOrders = totalOrders,
+                TotalSpent = totalSpent,
+                TotalEarned = totalEarned
+            };
+            return View(model);
+        }
+
+        #region Helpers
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)
@@ -164,5 +263,8 @@ namespace LTMS.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+        #endregion
     }
+
+
 }

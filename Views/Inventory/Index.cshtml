@@ -1,0 +1,518 @@
+@model IEnumerable<LTMS.Models.Inventory>
+
+@{
+    ViewData["Title"] = "Inventory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var leatherTypes = ViewBag.LeatherTypes as List<LTMS.Models.LeatherType>;
+}
+
+<partial name="_UnifiedSidebar" />
+
+<style>
+    :root {
+        --primary-color: #4a6b57;
+        --text-color: #333;
+        --light-gray: #f5f5f5;
+        --border-color: #e0e0e0;
+    }
+    .main-content {
+        margin-left: 250px;
+        min-height: 100vh;
+        padding: 2rem;
+        background: #f9f9f9;
+    }
+    .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    .card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-title {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .view-toggle {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border: none;
+        font-size: 0.9rem;
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #3a5a47;
+    }
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+    .btn-outline:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    .inventory-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .inventory-card h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    .inventory-card p {
+        margin-bottom: 0.5rem;
+        color: #666;
+    }
+    .inventory-card .meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        color: #888;
+        font-size: 0.9rem;
+    }
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table th, .table td {
+        padding: 1.1rem 1.2rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    .table th {
+        text-align: left;
+        border-bottom: 2px solid var(--border-color);
+        color: var(--primary-color);
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+    }
+    .table td {
+        font-size: 1rem;
+        color: #222;
+    }
+    .table .badge {
+        font-size: 0.95em;
+    }
+    .modal-content {
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+        background: #fff;
+        border: none;
+        padding: 0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .modal-header {
+        background: transparent;
+        border-bottom: none;
+        border-radius: 24px 24px 0 0;
+        padding: 2rem 2rem 0.5rem 2rem;
+    }
+    .modal-title {
+        color: var(--primary-color);
+        font-weight: 800;
+        font-size: 1.3rem;
+    }
+    .close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        cursor: pointer;
+        margin-left: 1rem;
+        margin-top: -0.5rem;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">My Inventory</h5>
+            <div class="view-toggle">
+                <button class="btn btn-outline" onclick="toggleView('list')">
+                    <i class="fas fa-list"></i> List View
+                </button>
+                <button class="btn btn-outline" onclick="toggleView('card')">
+                    <i class="fas fa-th-large"></i> Card View
+                </button>
+                <button class="btn btn-primary" onclick="openInventoryModal()">
+                    <i class="fas fa-plus"></i> Add New Item
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- List View -->
+            <div id="list-view">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Product Name</th>
+                                <th>Leather Type</th>
+                                <th>Description</th>
+                                <th>Price ($)</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            <img src="@Url.Content(item.ImagePath)" alt="Image" style="max-width:60px;max-height:60px;border-radius:6px;cursor:pointer;" onclick="showImageModal('@Url.Content(item.ImagePath)')" />
+                                        }
+                                    </td>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.LeatherType?.Name</td>
+                                    <td>@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</td>
+                                    <td>@item.Price.ToString("N2")</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.UnitOfMeasurement</td>
+                                    <td>
+                                        <span class="badge badge-@(item.Status == "Available" ? "success" : item.Status == "Low Stock" ? "warning" : "danger")">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>@item.LastUpdated.ToString("MM/dd/yyyy")</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openInventoryModal(@item.Id)"><i class="fas fa-edit"></i> Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(@item.Id)"><i class="fas fa-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Card View -->
+            <div id="card-view" style="display: none;">
+                <div class="row">
+                    @foreach (var item in Model)
+                    {
+                        <div class="inventory-card">
+                            <div style="display:flex;align-items:center;gap:1.2rem;">
+                                @if (!string.IsNullOrEmpty(item.ImagePath))
+                                {
+                                    <img src="@Url.Content(item.ImagePath)" alt="Image" style="max-width:90px;max-height:90px;border-radius:8px;cursor:pointer;" onclick="showImageModal('@Url.Content(item.ImagePath)')" />
+                                }
+                                <div style="flex:1;">
+                                    <h3>@item.ProductName</h3>
+                                    <p>@(item.Description?.Length > 200 ? item.Description.Substring(0, 200) + "..." : item.Description)</p>
+                                    <div class="meta">
+                                        <span><i class="fas fa-tag"></i> @item.LeatherType?.Name</span>
+                                        <span><i class="fas fa-box"></i> @item.Quantity @item.UnitOfMeasurement</span>
+                                        <span><i class="fas fa-dollar-sign"></i> @item.Price.ToString("N2")</span>
+                                        <span><i class="far fa-calendar-alt"></i> @item.LastUpdated.ToString("MM/dd/yyyy")</span>
+                                        <span class="badge badge-@(item.Status == "Available" ? "success" : item.Status == "Low Stock" ? "warning" : "danger")">
+                                            @item.Status
+                                        </span>
+                                    </div>
+                                    <div style="margin-top: 1rem;">
+                                        <button class="btn btn-primary btn-sm" onclick="openInventoryModal(@item.Id)"><i class="fas fa-edit"></i> Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(@item.Id)"><i class="fas fa-trash"></i> Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Modal (styled) -->
+<div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventoryModalLabel">Add/Edit Inventory Item</h5>
+                <button type="button" class="close" onclick="closeInventoryModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="inventoryModalAlert"></div>
+                <form id="inventoryForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label for="ProductName">Product Name</label>
+                        <input type="text" class="form-control" id="ProductName" name="ProductName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="LeatherTypeId">Leather Type</label>
+                        <select class="form-control" id="LeatherTypeId" name="LeatherTypeId" required>
+                            <option value="">Select Leather Type</option>
+                            <optgroup label="Common Leather Types">
+                                @foreach (var type in leatherTypes.Where(t => t.Category == "Common"))
+                                {
+                                    <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="Specialty Leathers">
+                                @foreach (var type in leatherTypes.Where(t => t.Category == "Specialty"))
+                                {
+                                    <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="Exotic Leathers">
+                                @foreach (var type in leatherTypes.Where(t => t.Category == "Exotic"))
+                                {
+                                    <option value="@type.Id" data-description="@type.Description">@type.Name</option>
+                                }
+                            </optgroup>
+                        </select>
+                        <small id="leatherTypeDescription" class="form-text text-muted"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="Description">Description</label>
+                        <textarea class="form-control" id="Description" name="Description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="Price">Price ($)</label>
+                        <input type="number" class="form-control" id="Price" name="Price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Quantity">Quantity</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="Quantity" name="Quantity" min="0" required>
+                            <select class="form-control" id="UnitOfMeasurement" name="UnitOfMeasurement">
+                                <option value="Square Feet">Square Feet</option>
+                                <option value="Square Meters">Square Meters</option>
+                                <option value="Pieces">Pieces</option>
+                                <option value="Yards">Yards</option>
+                                <option value="Meters">Meters</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Status">Status</label>
+                        <select class="form-control" id="Status" name="Status">
+                            <option value="Available">Available</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Image">Image</label>
+                        <input type="file" class="form-control" id="Image" name="Image" accept="image/*" onchange="previewInventoryImage(event)">
+                        <div id="imagePreviewContainer" style="margin-top:10px;">
+                            <img id="imagePreview" src="#" alt="Image Preview" style="display:none;max-width:120px;max-height:120px;border-radius:8px;" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveInventory()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this inventory item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Lightbox Modal -->
+<div class="modal fade" id="imageLightboxModal" tabindex="-1" role="dialog" aria-labelledby="imageLightboxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="background:rgba(0,0,0,0.85);border:none;box-shadow:none;">
+            <div class="modal-body" style="display:flex;justify-content:center;align-items:center;padding:0;">
+                <img id="lightboxImage" src="#" alt="Full Image" style="max-width:90vw;max-height:80vh;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,0.4);" />
+            </div>
+            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close" style="z-index:10;"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deleteItemId = null;
+        function toggleView(view) {
+            const listView = document.getElementById('list-view');
+            const cardView = document.getElementById('card-view');
+            if (view === 'list') {
+                listView.style.display = 'block';
+                cardView.style.display = 'none';
+            } else {
+                listView.style.display = 'none';
+                cardView.style.display = 'block';
+            }
+        }
+        function openInventoryModal(id = null) {
+            if (id) {
+                $.get('@Url.Action("GetInventory")', { id: id }, function(data) {
+                    if ($('#inventoryId').length === 0) {
+                        $('#inventoryForm').prepend('<input type="hidden" id="inventoryId" name="Id" />');
+                    }
+                    $('#inventoryId').val(data.id);
+                    $('#ProductName').val(data.productName);
+                    $('#LeatherTypeId').val(data.leatherTypeId);
+                    $('#Description').val(data.description);
+                    $('#Price').val(data.price);
+                    $('#Quantity').val(data.quantity);
+                    $('#UnitOfMeasurement').val(data.unitOfMeasurement);
+                    $('#Status').val(data.status);
+                    $('#inventoryModalLabel').text('Edit Inventory Item');
+                    $('#inventoryModalAlert').html('');
+                });
+            } else {
+                $('#inventoryForm')[0].reset();
+                $('#inventoryId').remove();
+                $('#inventoryModalLabel').text('Add New Inventory Item');
+                $('#inventoryModalAlert').html('');
+            }
+            $('#inventoryModal').modal('show');
+        }
+        function closeInventoryModal() {
+            $('#inventoryModal').modal('hide');
+            $('#inventoryModalAlert').html('');
+        }
+        function saveInventory() {
+            var form = document.getElementById('inventoryForm');
+            var formData = new FormData(form);
+            var id = $('#inventoryId').val();
+            var url = id ? '@Url.Action("Edit")' : '@Url.Action("Create")';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#inventoryModalAlert').html('<div class="alert alert-success">Inventory item saved successfully!</div>');
+                        setTimeout(function() { location.reload(); }, 1000);
+                    } else {
+                        let errorMsg = 'Error saving inventory item: ' + response.message;
+                        if (response.errors && response.errors.length > 0) {
+                            errorMsg += '<ul>';
+                            response.errors.forEach(function(err) {
+                                if (err.Errors && Array.isArray(err.Errors)) {
+                                    errorMsg += '<li><strong>' + err.Key + ':</strong> ' + err.Errors.join(', ') + '</li>';
+                                } else {
+                                    errorMsg += '<li>' + JSON.stringify(err) + '</li>';
+                                }
+                            });
+                            errorMsg += '</ul>';
+                        }
+                        $('#inventoryModalAlert').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                    }
+                }
+            });
+        }
+        function confirmDelete(id) {
+            deleteItemId = id;
+            $('#deleteConfirmModal').modal('show');
+        }
+        function previewInventoryImage(event) {
+            var input = event.target;
+            var preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        }
+        function showImageModal(imageUrl) {
+            $('#lightboxImage').attr('src', imageUrl);
+            $('#imageLightboxModal').modal('show');
+        }
+        $(document).ready(function() {
+            $('#LeatherTypeId').change(function() {
+                var description = $(this).find(':selected').data('description');
+                $('#leatherTypeDescription').text(description || '');
+            });
+            $('#confirmDeleteBtn').click(function() {
+                if (deleteItemId) {
+                    $.post('@Url.Action("Delete")', { id: deleteItemId }, function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            $('#inventoryModalAlert').html('<div class="alert alert-danger">' + (response.message || 'Error deleting inventory item.') + '</div>');
+                        }
+                    });
+                }
+                $('#deleteConfirmModal').modal('hide');
+            });
+        });
+    </script>
+}

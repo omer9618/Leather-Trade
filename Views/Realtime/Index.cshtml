@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Realtime Voice Chat";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Realtime Voice Chat</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <button id="startButton" class="btn btn-primary" onclick="initRealtime()">
+                            Start Voice Chat
+                        </button>
+                        <button id="stopButton" class="btn btn-danger" onclick="stopRealtime()" style="display: none;">
+                            Stop Voice Chat
+                        </button>
+                    </div>
+                    <div id="status" class="alert alert-info" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let pc = null;
+        let audioElement = null;
+
+        async function initRealtime() {
+            try {
+                document.getElementById('startButton').style.display = 'none';
+                document.getElementById('stopButton').style.display = 'inline-block';
+                document.getElementById('status').style.display = 'block';
+                document.getElementById('status').textContent = 'Connecting...';
+
+                const response = await fetch('/api/realtime/session');
+                if (!response.ok) {
+                    throw new Error('Failed to get session token');
+                }
+                const data = await response.json();
+                const EPHEMERAL_KEY = data.client_secret.value;
+
+                // Create WebRTC Peer Connection
+                pc = new RTCPeerConnection();
+
+                // Add microphone input
+                const ms = await navigator.mediaDevices.getUserMedia({ audio: true });
+                pc.addTrack(ms.getTracks()[0]);
+
+                // Set up remote audio playback
+                audioElement = document.createElement("audio");
+                audioElement.autoplay = true;
+                pc.ontrack = e => audioElement.srcObject = e.streams[0];
+
+                // Data channel for events
+                const dc = pc.createDataChannel("oai-events");
+                dc.onmessage = e => {
+                    console.log("Realtime event:", e.data);
+                    document.getElementById('status').textContent = `Event: ${e.data}`;
+                };
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                const sdpResponse = await fetch("https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17", {
+                    method: "POST",
+                    body: offer.sdp,
+                    headers: {
+                        Authorization: `Bearer ${EPHEMERAL_KEY}`,
+                        "Content-Type": "application/sdp"
+                    }
+                });
+
+                if (!sdpResponse.ok) {
+                    throw new Error('Failed to establish WebRTC connection');
+                }
+
+                const answer = { type: "answer", sdp: await sdpResponse.text() };
+                await pc.setRemoteDescription(answer);
+
+                document.getElementById('status').textContent = 'Connected! Speak to start the conversation.';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = `Error: ${error.message}`;
+                document.getElementById('startButton').style.display = 'inline-block';
+                document.getElementById('stopButton').style.display = 'none';
+            }
+        }
+
+        function stopRealtime() {
+            if (pc) {
+                pc.close();
+                pc = null;
+            }
+            if (audioElement) {
+                audioElement.srcObject = null;
+                audioElement = null;
+            }
+            document.getElementById('startButton').style.display = 'inline-block';
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('status').textContent = 'Disconnected';
+        }
+    </script>
+} 

@@ -1,6 +1,4 @@
-﻿@using LTMS.ViewModels
-@model LoginViewModel
-
+﻿@model LTMS.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login to Leathrix";
     Layout = "_AccountLayout";
@@ -8,8 +6,8 @@
 
 <div class="auth-container">
     <div class="auth-header">
-        <h1 class="logo-text">Leathrix</h1>
-        <h2 class="auth-subtitle">Login to your account</h2>
+        <h1 class="auth-title">Leathrix</h1>
+        <p class="auth-subtitle">Login to your account</p>
     </div>
 
     <form asp-action="Login" method="post" class="auth-form">
@@ -17,21 +15,15 @@
 
         <!-- Email Field -->
         <div class="form-group">
-            <label asp-for="Email" class="form-label" for="emailField">Email</label>
-            <div class="input-container">
-                <input asp-for="Email" class="form-control" id="emailField" placeholder="Enter your email" autocomplete="username">
-                <i class="fas fa-envelope input-icon"></i>
-            </div>
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" placeholder="omer@gmail.com">
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
-        <!-- Password Field with Toggle -->
+        <!-- Password Field -->
         <div class="form-group">
-            <label asp-for="Password" class="form-label" for="passwordField">Password</label>
-            <div class="input-container">
-                <input asp-for="Password" type="password" class="form-control" id="passwordField" placeholder="Enter your password" autocomplete="current-password">
-                <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
-            </div>
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Enter password">
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
 
@@ -41,121 +33,88 @@
                 <input asp-for="RememberMe" class="form-check-input" id="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
-            <a href="#" class="forgot-password">Forgot password?</a>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary auth-btn">Sign In</button>
+        <button type="submit" class="btn btn-primary w-100">
+            Sign In
+        </button>
     </form>
 
     <!-- Create Account Link -->
-    <div class="text-center mt-3">
-        <a href="/Account/Register" class="create-account-link">
-            Create one
+    <div class="auth-footer">
+        <span>Don't have an account?</span>
+        <a asp-controller="Account" asp-action="Register" class="create-account">
+            Create One
         </a>
     </div>
 </div>
 
 @section Styles {
     <style>
-        /* Modern Font Import */
-        @@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
         /* Base Styles */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+        :root {
+            --primary-color: #4a6b57;
+            --text-color: #333333;
+            --light-gray: #f5f5f5;
         }
 
-        /* Logo Styling */
-        .logo-text {
-            font-family: 'Poppins', sans-serif;
+        body {
+            background-color: white;
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-color);
+        }
+
+        /* Auth Container */
+        .auth-container {
+            max-width: 380px;
+            width: 100%;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .auth-title {
+            font-size: 1.75rem;
             font-weight: 700;
-            font-size: 2.5rem;
-            color: #4a6b57;
-            margin-bottom: 0.5rem;
             text-align: center;
-            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
         }
 
         .auth-subtitle {
-            font-weight: 400;
-            font-size: 1.1rem;
-            color: #6c757d;
-            margin-bottom: 2rem;
+            color: var(--text-color);
             text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            font-weight: 400;
         }
 
-        /* Form Container */
-        .auth-container {
-            max-width: 420px;
-            width: 100%;
-            padding: 2.5rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            margin: 2rem auto;
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        /* Input Fields */
-        .input-container {
-            position: relative;
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
         .form-control {
-            padding: 0.8rem 1rem 0.8rem 2.5rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
         }
 
             .form-control:focus {
-                border-color: #4a6b57;
-                box-shadow: 0 0 0 3px rgba(74,107,87,0.1);
-            }
-
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9e9e9e;
-            font-size: 1rem;
-        }
-
-        /* Password Toggle */
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9e9e9e;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: color 0.2s;
-        }
-
-            .password-toggle:hover {
-                color: #4a6b57;
-            }
-
-        /* Button Styling */
-        .auth-btn {
-            width: 100%;
-            padding: 0.9rem;
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: 8px;
-            background-color: #4a6b57;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-            .auth-btn:hover {
-                background-color: #3a5a46;
-                transform: translateY(-2px);
+                outline: none;
+                border-color: var(--primary-color);
             }
 
         /* Form Options */
@@ -163,56 +122,70 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 1.5rem 0;
+            margin-bottom: 1.5rem;
         }
 
-        .forgot-password {
-            color: #6c757d;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: color 0.2s;
+        .form-check {
+            display: flex;
+            align-items: center;
         }
 
-            .forgot-password:hover {
-                color: #4a6b57;
-                text-decoration: underline;
-            }
+        .form-check-input {
+            margin-right: 0.5rem;
+        }
 
-        /* Create Account Link */
-        .create-account-link {
-            color: #4a6b57;
+        /* Button Styles */
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
             font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
         }
 
-            .create-account-link:hover {
+            .btn-primary:hover {
+                background-color: #3a5a46;
+            }
+
+        /* Footer Links */
+        .auth-footer {
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .create-account {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 0.25rem;
+        }
+
+            .create-account:hover {
                 text-decoration: underline;
             }
 
-        /* Form Labels */
-        .form-label {
+        /* Validation Errors */
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #495057;
         }
     </style>
 }
 
 @section Scripts {
-    <script>
-        function togglePassword() {
-            const passwordField = document.getElementById('passwordField');
-            const eyeIcon = document.querySelector('.password-toggle');
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
-    </script>
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Auto-focus email field on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('input[name="Email"]').focus();
+        });
+    </script>
 }

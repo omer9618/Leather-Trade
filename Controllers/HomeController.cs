@@ -2,6 +2,7 @@ using LTMS.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using LTMS.Data;  
 
 namespace LTMS.Controllers
 {
@@ -15,13 +16,16 @@ namespace LTMS.Controllers
         }
 
         [Authorize]
-
         public IActionResult Index()
         {
-            // Redirect sellers to dashboard
+            // This will only be hit if someone manually navigates to /Home/Index
             if (User.IsInRole("Seller"))
             {
                 return RedirectToAction("Dashboard", "Seller");
+            }
+            else if (User.IsInRole("Buyer"))
+            {
+                return RedirectToAction("Dashboard", "Buyer");
             }
             return View();
         }

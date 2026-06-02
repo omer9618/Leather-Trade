@@ -1,6 +1,5 @@
 ﻿@{
-    if (!User.Identity.IsAuthenticated && Context.Request.Path != "/Account/Auth")
-    {
-        Context.Response.Redirect("/Account/Auth");
-    }
+    Layout = User.Identity.IsAuthenticated
+        ? "_Layout"
+        : "_AccountLayout";
 }

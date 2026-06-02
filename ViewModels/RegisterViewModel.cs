@@ -16,7 +16,7 @@ namespace LTMS.ViewModels
         [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least {2} characters.")]
         [DataType(DataType.Password)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$",
-            ErrorMessage = "Password must contain uppercase, lowercase and number.")]
+            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, and one number.")]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Please confirm your password.")]
