@@ -28,11 +28,14 @@ namespace LTMS.Controllers
             if (message == null || string.IsNullOrWhiteSpace(message.Content))
                 return BadRequest(new { error = "Empty message" });
 
-            var apiKey = _configuration["Gemini:ApiKey"];
+            var apiKey = _configuration["Groq:ApiKey"];
+            var modelName = _configuration["Groq:ModelName"] ?? "openai/gpt-oss-20b";
+            
             if (string.IsNullOrWhiteSpace(apiKey))
-                return BadRequest(new { error = "Gemini API key missing" });
+                return BadRequest(new { error = "Groq API key missing" });
 
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
             string preamble = @"
 You are an AI assistant for the Leather Trading Management System (LTMS).
@@ -53,20 +56,15 @@ Instructions:
 
             var requestBody = new
             {
-                contents = new[]
+                model = modelName,
+                messages = new[]
                 {
-                    new
-                    {
-                        parts = new[]
-                        {
-                            new { text = $"{preamble}\n\nUser: {message.Content}" }
-                        }
-                    }
+                    new { role = "system", content = preamble },
+                    new { role = "user", content = message.Content }
                 }
             };
 
-            var url =
-                $"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={apiKey}";
+            var url = "https://api.groq.com/openai/v1/chat/completions";
 
             try
             {
@@ -85,16 +83,14 @@ Instructions:
                 using var doc = JsonDocument.Parse(raw);
                 var root = doc.RootElement;
 
-                if (!root.TryGetProperty("candidates", out var candidates) ||
-                    candidates.GetArrayLength() == 0)
+                if (!root.TryGetProperty("choices", out var choices) || choices.GetArrayLength() == 0)
                 {
                     return Ok(new { reply = "AI could not generate a response." });
                 }
 
-                var reply = candidates[0]
+                var reply = choices[0]
+                    .GetProperty("message")
                     .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
                     .GetString();
 
                 return Ok(new { reply });

@@ -60,6 +60,9 @@ namespace LTMS.Controllers
                     Status = "Pending"
                 };
 
+                ViewBag.Bid = bid;
+                ViewBag.Demand = bid.Demand;
+
                 return View(payment);
             }
             catch (Exception ex)
@@ -110,11 +113,27 @@ namespace LTMS.Controllers
                     return BadRequest(new { success = false, message = "Payment already exists for this bid" });
                 }
 
-                // Always return a fake successful payment intent for demo purposes
+                // Initialize Stripe API
+                Stripe.StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+                
+                var options = new Stripe.PaymentIntentCreateOptions
+                {
+                    Amount = (long)(bid.Amount * 100), // Stripe expects amount in cents
+                    Currency = "usd",
+                    Metadata = new System.Collections.Generic.Dictionary<string, string>
+                    {
+                        { "BidId", bid.Id.ToString() },
+                        { "DemandId", bid.DemandId.ToString() }
+                    }
+                };
+                
+                var service = new Stripe.PaymentIntentService();
+                var paymentIntent = await service.CreateAsync(options);
+
                 return Ok(new {
                     success = true,
-                    clientSecret = "demo_client_secret",
-                    paymentId = 1,
+                    clientSecret = paymentIntent.ClientSecret,
+                    paymentId = paymentIntent.Id,
                     amount = bid.Amount,
                     currency = "usd"
                 });
@@ -179,6 +198,24 @@ namespace LTMS.Controllers
                     return BadRequest(new { success = false, message = "Payment already exists for this bid" });
                 }
 
+                // Verify with Stripe that it actually succeeded (unless it's our 1-click test bypass)
+                if (!request.PaymentIntentId.StartsWith("pi_test_bypass_"))
+                {
+                    Stripe.StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+                    var service = new Stripe.PaymentIntentService();
+                    var paymentIntent = await service.GetAsync(request.PaymentIntentId);
+
+                    if (paymentIntent.Status != "succeeded")
+                    {
+                        _logger.LogWarning("Stripe payment not successful: {Status}", paymentIntent.Status);
+                        return BadRequest(new { success = false, message = "Payment was not successful according to Stripe." });
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("Test bypass payment confirmed without Stripe verification.");
+                }
+
                 try
                 {
                     // Create new order record
@@ -232,7 +269,8 @@ namespace LTMS.Controllers
                         Message = $"You have received a payment of ${payment.Amount:N2} for Bid #{bid.Id}.",
                         Type = "Payment",
                         CreatedAt = DateTime.UtcNow,
-                        IsRead = false
+                        IsRead = false,
+                        ReferenceId = order.Id.ToString()
                     };
 
                     _context.Notifications.Add(notification);

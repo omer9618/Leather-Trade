@@ -1,4 +1,4 @@
-﻿using LTMS.Models;
+using LTMS.Models;
 using LTMS.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -223,15 +223,22 @@ namespace LTMS.Controllers
             decimal totalEarned = 0;
             int totalOrders = 0;
 
+            List<LTMS.Models.Order> recentOrders = new List<LTMS.Models.Order>();
+            List<LTMS.Models.Payment> recentPayments = new List<LTMS.Models.Payment>();
+
             if (isBuyer)
             {
                 totalOrders = _context.Orders.Count(o => o.BuyerId == user.Id);
-                totalSpent = _context.Orders.Where(o => o.BuyerId == user.Id).Sum(o => (decimal?)o.Amount) ?? 0;
+                totalSpent = _context.Orders.Where(o => o.BuyerId == user.Id).AsEnumerable().Sum(o => o.Amount);
+                recentOrders = _context.Orders.Where(o => o.BuyerId == user.Id).OrderByDescending(o => o.OrderDate).Take(10).ToList();
+                recentPayments = _context.Payments.Where(p => p.Order.BuyerId == user.Id).OrderByDescending(p => p.PaymentDate).Take(10).ToList();
             }
             if (isSeller)
             {
                 totalOrders = _context.Orders.Count(o => o.SellerId == user.Id);
-                totalEarned = _context.Orders.Where(o => o.SellerId == user.Id).Sum(o => (decimal?)o.Amount) ?? 0;
+                totalEarned = _context.Orders.Where(o => o.SellerId == user.Id).AsEnumerable().Sum(o => o.Amount);
+                recentOrders = _context.Orders.Where(o => o.SellerId == user.Id).OrderByDescending(o => o.OrderDate).Take(10).ToList();
+                recentPayments = _context.Payments.Where(p => p.Order.SellerId == user.Id).OrderByDescending(p => p.PaymentDate).Take(10).ToList();
             }
 
             var model = new ProfileViewModel
@@ -241,7 +248,9 @@ namespace LTMS.Controllers
                 Role = isBuyer ? "Buyer" : isSeller ? "Seller" : "",
                 TotalOrders = totalOrders,
                 TotalSpent = totalSpent,
-                TotalEarned = totalEarned
+                TotalEarned = totalEarned,
+                RecentOrders = recentOrders,
+                RecentPayments = recentPayments
             };
             return View(model);
         }

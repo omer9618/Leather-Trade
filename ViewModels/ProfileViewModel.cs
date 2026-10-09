@@ -8,5 +8,7 @@ namespace LTMS.ViewModels
         public int TotalOrders { get; set; }
         public decimal TotalSpent { get; set; }
         public decimal TotalEarned { get; set; }
+        public System.Collections.Generic.List<LTMS.Models.Order> RecentOrders { get; set; } = new System.Collections.Generic.List<LTMS.Models.Order>();
+        public System.Collections.Generic.List<LTMS.Models.Payment> RecentPayments { get; set; } = new System.Collections.Generic.List<LTMS.Models.Payment>();
     }
 } 

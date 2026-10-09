@@ -13,14 +13,16 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
 // Configure DbContext with retry logic (simplified version)
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(); // Default settings
-            sqlOptions.CommandTimeout(180);
-        }));
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+}
 
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -86,7 +88,16 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-        await context.Database.MigrateAsync();
+        if (app.Environment.IsDevelopment())
+        {
+            await context.Database.MigrateAsync();
+        }
+        else
+        {
+            // For production with PostgreSQL, EnsureCreated handles initial schema creation
+            // without requiring separate migration assemblies for different providers
+            await context.Database.EnsureCreatedAsync();
+        }
 
         var roles = new[] { "Buyer", "Seller" };
         foreach (var role in roles)

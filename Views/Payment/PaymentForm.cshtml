@@ -18,29 +18,12 @@
             background-color: #f8f9fa;
             color: #333;
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
 
         .card {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .card-header {
@@ -140,71 +123,140 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center w-100">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">Complete Payment</h4>
-                    </div>
+    <div class="container py-5">
+        <div class="row g-5">
+            
+            <!-- Order Summary Section (Right Side on Desktop, Top on Mobile) -->
+            <div class="col-md-5 col-lg-4 order-md-last">
+                <h4 class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="text-muted"><i class="fas fa-shopping-cart me-2"></i>Order Summary</span>
+                </h4>
+                
+                <div class="card shadow-sm mb-4">
                     <div class="card-body">
+                        @if(ViewBag.Demand != null)
+                        {
+                            <h5 class="card-title fw-bold">@ViewBag.Demand.Title</h5>
+                            <p class="card-text text-muted small">@ViewBag.Demand.Quantity @ViewBag.Demand.UnitOfMeasurement</p>
+                            <hr />
+                        }
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal</span>
+                            <span>$@Model.Amount.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Tax & Fees</span>
+                            <span class="text-success">Included</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-0">
+                            <span class="fw-bold fs-5">Total</span>
+                            <span class="fw-bold fs-5">$@Model.Amount.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-2"><i class="fas fa-lock me-1"></i>Guaranteed Safe & Secure Checkout</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <i class="fab fa-cc-visa fa-2x text-muted"></i>
+                        <i class="fab fa-cc-mastercard fa-2x text-muted"></i>
+                        <i class="fab fa-cc-amex fa-2x text-muted"></i>
+                        <i class="fab fa-stripe fa-2x" style="color: #635bff;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Form Section (Left Side) -->
+            <div class="col-md-7 col-lg-8">
+                <h4 class="mb-4">Payment Information</h4>
+                
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
                         <div id="payment-status" class="alert alert-info" style="display: none;">
                             <i class="fas fa-info-circle me-2"></i>
                             <span id="status-message">Processing payment...</span>
+                        </div>
+
+                        <!-- Test Credentials Alert -->
+                        <div class="alert alert-warning border-warning" role="alert">
+                            <h6 class="alert-heading fw-bold"><i class="fas fa-flask me-2"></i>Test Mode Active</h6>
+                            <p class="mb-1 small">Use these credentials to test the payment:</p>
+                            <ul class="mb-0 small" style="list-style: none; padding-left: 0;">
+                                <li><strong>Card Number:</strong> <code class="user-select-all">4242 4242 4242 4242</code></li>
+                                <li><strong>Expiration:</strong> <code class="user-select-all">Any future date (e.g. 12/34)</code></li>
+                                <li><strong>CVC:</strong> <code class="user-select-all">Any 3 digits (e.g. 123)</code></li>
+                            </ul>
                         </div>
 
                         <form id="payment-form">
                             @Html.AntiForgeryToken()
                             <input type="hidden" id="stripe-publishable-key" value="@Configuration["Stripe:PublishableKey"]" />
                             <input type="hidden" id="bid-id" value="@Model.BidId" />
+                            <input type="hidden" id="amount" value="@Model.Amount" />
 
-                            <div class="mb-3">
-                                <label for="card-element" class="form-label">Card Details</label>
-                                <div id="card-element"></div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Name on Card</label>
+                                <input type="text" class="form-control" placeholder="John Doe" required>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Amount to Pay</label>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Card Number</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-dollar-sign"></i>
-                                    </span>
-                                    <input type="text" id="amount" class="form-control" value="@Model.Amount.ToString("N2")" readonly>
+                                    <span class="input-group-text"><i class="far fa-credit-card"></i></span>
+                                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" value="4242 4242 4242 4242" required>
                                 </div>
                             </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">Expiration Date</label>
+                                    <input type="text" class="form-control" placeholder="MM/YY" value="12/34" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">CVC</label>
+                                    <input type="text" class="form-control" placeholder="123" value="123" required>
+                                </div>
+                            </div>
+                            
+                            <div id="card-errors" role="alert" class="text-danger mb-3"></div>
 
-                            <div id="card-errors" role="alert"></div>
+                            <hr class="my-4">
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-success" id="submit-payment">
-                                    <span id="button-text">Complete Payment</span>
-                                    <span id="spinner" class="spinner hidden ms-2"></span>
-                                </button>
-                                <a href="@Url.Action("Dashboard", "Buyer")" class="btn btn-outline-success">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            <button type="submit" class="btn btn-success btn-lg w-100" id="submit-payment">
+                                <i class="fas fa-lock me-2"></i><span id="button-text">Pay $@Model.Amount.ToString("N2")</span>
+                                <span id="spinner" class="spinner hidden ms-2"></span>
+                            </button>
+                            
+                            <div class="text-center mt-3">
+                                <a href="@Url.Action("Dashboard", "Buyer")" class="text-decoration-none text-muted">
+                                    <i class="fas fa-arrow-left me-1"></i> Return to Dashboard
                                 </a>
                             </div>
                         </form>
 
                         <div id="payment-success" class="text-center" style="display: none;">
-                            <div class="mb-4">
-                                <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            <div class="mb-4 mt-3">
+                                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-check fs-1"></i>
+                                </div>
                             </div>
-                            <h4 class="text-success mb-3">Payment Successful!</h4>
-                            <p class="text-muted">The seller has been notified of your payment.</p>
+                            <h4 class="text-success mb-3 fw-bold">Payment Successful!</h4>
+                            <p class="text-muted">The seller has been notified of your payment. You will receive an email receipt shortly.</p>
                             <div class="mt-4">
-                                <a href="@Url.Action("Dashboard", "Buyer")" class="btn btn-success">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                <a href="@Url.Action("Dashboard", "Buyer")" class="btn btn-outline-success px-4 py-2 fw-bold">
+                                    View Dashboard
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="~/js/payment.js"></script>
+    <script src="~/js/payment.js" asp-append-version="true"></script>
 </body>
 </html> 

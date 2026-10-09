@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Seller Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -310,28 +310,9 @@
     <!-- Toast Container for Notifications -->
     <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 
-    <partial name="_SidebarScript" />
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('sidebarToggle');
-        const mainContent = document.getElementById('mainContent');
-
-        if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                if (mainContent) mainContent.classList.toggle('expanded');
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            });
-        }
-
-        // On page load, restore state
-        if (sidebar && localStorage.getItem('sidebarCollapsed') === 'true') {
-            sidebar.classList.add('collapsed');
-            if (mainContent) mainContent.classList.add('expanded');
-        }
         loadNotifications();
     });
 
@@ -385,7 +366,18 @@
                     const title = n.title || 'No Title';
                     const message = n.message || '';
                     const referenceId = n.referenceId || '';
+                    const type = n.type || '';
                     const id = n.id;
+                    
+                    let viewUrl = '#';
+                    if (referenceId) {
+                        if (type === 'Payment' || type === 'Order') {
+                            viewUrl = '/Seller/OrderDetails/' + referenceId;
+                        } else {
+                            viewUrl = '/Seller/DemandDetails/' + referenceId;
+                        }
+                    }
+                    
                     const item = $(
                         `<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${id}">
                             <div>
@@ -393,7 +385,7 @@
                                 <span>${message}</span>
                             </div>
                             <div>
-                                <a href="/Seller/DemandDetails/${referenceId}" class="btn btn-sm btn-primary me-2">View</a>
+                                <a href="${viewUrl}" class="btn btn-sm btn-primary me-2" ${!referenceId ? 'style="display:none;"' : ''}>View</a>
                                 <button class="btn btn-sm btn-outline-danger" onclick="dismissNotification(${id}, this)">Dismiss</button>
                             </div>
                         </li>`

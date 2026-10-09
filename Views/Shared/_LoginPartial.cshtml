@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using LTMS.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -31,7 +31,7 @@
                 </li>
                 <li>
                     <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-                        <button type="submit" class="dropdown-item btn btn-link">
+                        <button type="button" class="dropdown-item btn btn-link" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </button>
                     </form>

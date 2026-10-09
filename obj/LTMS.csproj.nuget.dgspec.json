@@ -1,22 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj": {}
+    "C:\\Users\\Admin\\Desktop\\Leather-Trade\\LTMS.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj": {
+    "C:\\Users\\Admin\\Desktop\\Leather-Trade\\LTMS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\Leather-Trade\\LTMS.csproj",
         "projectName": "LTMS",
-        "projectPath": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\LTMS.csproj",
-        "packagesPath": "C:\\Users\\DC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\Leather-Trade\\LTMS.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\Leather-Trade\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\DC\\Documents\\Desktop\\Leather Trade\\NuGet.Config",
-          "C:\\Users\\DC\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Admin\\Desktop\\Leather-Trade\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -35,6 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -45,11 +49,21 @@
               "target": "Package",
               "version": "[8.0.4, )"
             },
+            "Microsoft.AspNetCore.SignalR.Core": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.4, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[8.0.4, )"
             },
@@ -58,6 +72,14 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.4, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.4, )"
+            },
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[48.1.0, )"
             }
           },
           "imports": [
@@ -79,7 +101,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\Admin\\AppData\\Local\\Microsoft\\dotnet\\sdk\\8.0.425/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

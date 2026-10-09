@@ -2,71 +2,371 @@
 @{
     ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model.Name ?? "")}&background=4a6b57&color=fff&size=128";
 }
-<div class="sidebar-container">
-    @await Html.PartialAsync("~/Views/Shared/_UnifiedSidebar.cshtml")
-</div>
-<div class="main-content">
-    <div class="card mb-4">
-        <div class="card-header bg-white border-bottom d-flex align-items-center">
-            <h4 class="mb-0" style="color: #4a6b57; font-weight: 600;"><i class="fas fa-user"></i> Profile Overview</h4>
-        </div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-4">Name</dt>
-                <dd class="col-sm-8">@Model.Name</dd>
-                <dt class="col-sm-4">Email</dt>
-                <dd class="col-sm-8">@Model.Email</dd>
-                <dt class="col-sm-4">Role</dt>
-                <dd class="col-sm-8">@Model.Role</dd>
-                <dt class="col-sm-4">Total Orders</dt>
-                <dd class="col-sm-8">@Model.TotalOrders</dd>
-                @if (Model.Role == "Buyer") {
-                    <dt class="col-sm-4">Total Spent</dt>
-                    <dd class="col-sm-8" style="color: #28a745; font-weight: 600;">$@Model.TotalSpent.ToString("N2")</dd>
-                } else if (Model.Role == "Seller") {
-                    <dt class="col-sm-4">Total Earned</dt>
-                    <dd class="col-sm-8" style="color: #007bff; font-weight: 600;">$@Model.TotalEarned.ToString("N2")</dd>
-                }
-            </dl>
-        </div>
-    </div>
-</div>
+
+<partial name="_UnifiedSidebar" />
+
 <style>
-    .sidebar-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 1000;
+    /* Profile specific styles */
+    .profile-header {
+        position: relative;
+        background: linear-gradient(135deg, var(--primary-green) 0%, #2a3d31 100%);
+        height: 200px;
+        border-radius: 16px;
+        margin-bottom: 80px;
+        box-shadow: 0 10px 30px rgba(74, 107, 87, 0.2);
     }
+
+    .profile-avatar {
+        position: absolute;
+        bottom: -64px;
+        left: 40px;
+        width: 128px;
+        height: 128px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        background: #fff;
+        z-index: 10;
+    }
+
+    .profile-name-section {
+        position: absolute;
+        bottom: -50px;
+        left: 190px;
+    }
+
+    .profile-name-section h2 {
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 5px;
+        font-size: 2.2rem;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        background: var(--primary-green-light);
+        color: var(--primary-green);
+        box-shadow: 0 2px 8px rgba(74, 107, 87, 0.1);
+    }
+
+    .stats-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .icon-orders {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .icon-spent {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .icon-earned {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .info-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-green-light);
+        color: var(--primary-green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.1rem;
+    }
+
+    .info-content .label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .info-content .value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .settings-btn {
+        background: #fff;
+        border: 2px solid var(--primary-green);
+        color: var(--primary-green);
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 12px 20px;
+        transition: all 0.2s;
+        text-align: center;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .settings-btn:hover {
+        background: var(--primary-green);
+        color: #fff;
+    }
+    
     .main-content {
         margin-left: 250px;
         padding: 2rem;
         background: #f8f9fa;
         min-height: 100vh;
+        transition: margin-left 0.3s ease;
     }
-    .card {
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        background: white;
-    }
-    .card-header {
-        background: white;
-        border-bottom: 1px solid #dee2e6;
-        padding: 1rem 1.5rem;
-    }
-    .card-title {
-        color: #4a6b57;
-        font-weight: 600;
-        margin: 0;
-    }
-    dt {
-        font-weight: 500;
-        color: #6c757d;
-    }
-    dd {
-        margin-bottom: 0.5rem;
-    }
-</style> 
+</style>
+
+<div class="main-content">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <img src="@avatarUrl" alt="Profile Avatar" class="profile-avatar" />
+        <div class="profile-name-section">
+            <h2>@Model.Name</h2>
+            <div class="role-badge">
+                <i class="fas @(Model.Role == "Buyer" ? "fa-shopping-cart" : "fa-store")"></i> @Model.Role
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Personal Info -->
+        <div class="col-lg-5 mb-4">
+            <div class="info-card">
+                <h4 class="mb-4" style="color: #2c3e50; font-weight: 800;">Personal Details</h4>
+                
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="label">Email Address</div>
+                        <div class="value">@Model.Email</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="label">Account Type</div>
+                        <div class="value">@Model.Role Account</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-top">
+                    <!-- Note: Route might need to be adjusted if ChangePassword action doesn't exist yet -->
+                    <a href="#" class="settings-btn w-100">
+                        <i class="fas fa-lock me-2"></i> Update Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="col-lg-7">
+            <h4 class="mb-4" style="color: #2c3e50; font-weight: 800;">Activity Overview</h4>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="stats-card" data-bs-toggle="modal" data-bs-target="#ordersModal" title="View Recent Orders">
+                        <div class="stat-icon icon-orders">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-value">@Model.TotalOrders</div>
+                        <div class="stat-label">Total Orders @(Model.Role == "Buyer" ? "Placed" : "Received")</div>
+                    </div>
+                </div>
+                
+                @if (Model.Role == "Buyer")
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="stats-card" data-bs-toggle="modal" data-bs-target="#paymentsModal" title="View Payment History">
+                            <div class="stat-icon icon-spent">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-value">$@Model.TotalSpent.ToString("N2")</div>
+                            <div class="stat-label">Total Amount Spent</div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Role == "Seller")
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="stats-card" data-bs-toggle="modal" data-bs-target="#paymentsModal" title="View Revenue History">
+                            <div class="stat-icon icon-earned">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-value">$@Model.TotalEarned.ToString("N2")</div>
+                            <div class="stat-label">Total Revenue Earned</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Modal -->
+<div class="modal fade" id="ordersModal" tabindex="-1" aria-labelledby="ordersModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="ordersModalLabel">Recent Orders</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if (Model.RecentOrders != null && Model.RecentOrders.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td class="fw-bold">$@order.Amount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge bg-@(order.Status == "Completed" ? "success" : order.Status == "Pending" ? "warning text-dark" : "secondary")">@order.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-box-open fs-1 mb-3 text-light"></i>
+                <p>No recent orders found.</p>
+            </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payments Modal -->
+<div class="modal fade" id="paymentsModal" tabindex="-1" aria-labelledby="paymentsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="paymentsModalLabel">Recent Transactions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if (Model.RecentPayments != null && Model.RecentPayments.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Transaction ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in Model.RecentPayments)
+                        {
+                            <tr>
+                                <td>@payment.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                <td class="fw-bold">$@payment.Amount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge bg-@(payment.Status == "Completed" || payment.Status == "Succeeded" ? "success" : payment.Status == "Pending" ? "warning text-dark" : "danger")">@payment.Status</span>
+                                </td>
+                                <td><small class="text-muted">@payment.TransactionId</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-wallet fs-1 mb-3 text-light"></i>
+                <p>No recent transactions found.</p>
+            </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
